@@ -48,7 +48,7 @@
                 <hr />
                 <div>
                     <p>
-                        <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</a>
+                        <a href="account/register">Register as a new user</a>
                     </p>
                 </div>
             </EditForm>
@@ -62,9 +62,6 @@
 
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = default!;
-
-    [SupplyParameterFromQuery]
-    private string? ReturnUrl { get; set; }
 
     protected override void OnInitialized()
     {
@@ -90,7 +87,7 @@
             {
                 ((CustomAuthenticationStateProvider)AuthStateProvider).NotifyAuthenticationStateChanged();
                 await Task.Delay(100);
-                NavigationManager.NavigateTo(ReturnUrl ?? "/", forceLoad: false);
+                NavigationManager.NavigateTo("/", forceLoad: false);
             }
             else
             {

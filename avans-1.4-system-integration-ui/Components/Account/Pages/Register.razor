@@ -69,9 +69,6 @@
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = default!;
 
-    [SupplyParameterFromQuery]
-    private string? ReturnUrl { get; set; }
-
     protected override void OnInitialized()
     {
         Input ??= new();
@@ -98,7 +95,7 @@
             {
                 successMessage = "Registration successful! Redirecting to login...";
                 await Task.Delay(1000);
-                NavigationManager.NavigateTo("/Account/Login", forceLoad: true);
+                NavigationManager.NavigateTo("/account/login", forceLoad: true);
             }
             else
             {

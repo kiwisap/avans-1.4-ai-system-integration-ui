@@ -6,8 +6,7 @@
         <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
             <NotAuthorized>
                 @{
-                    var returnUrl = Navigation.ToBaseRelativePath(Navigation.Uri);
-                    Navigation.NavigateTo($"/Account/Login?returnUrl={Uri.EscapeDataString(returnUrl)}", true);
+                    Navigation.NavigateTo($"/account/login", true);
                 }
             </NotAuthorized>
         </AuthorizeRouteView>
