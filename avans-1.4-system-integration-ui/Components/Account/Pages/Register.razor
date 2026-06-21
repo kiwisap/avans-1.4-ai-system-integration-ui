@@ -8,9 +8,9 @@
 @inject CustomAuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 
-<PageTitle>Register</PageTitle>
+<PageTitle>Registreren</PageTitle>
 
-<h1>Register</h1>
+<h1>Registreren</h1>
 
 <div class="row">
     <div class="col-lg-6">
@@ -24,37 +24,37 @@
         }
         <EditForm Model="Input" method="post" OnValidSubmit="RegisterUser" FormName="register">
             <DataAnnotationsValidator />
-            <h2>Create a new account.</h2>
+            <h2>Maak een nieuw account aan.</h2>
             <hr />
             <ValidationSummary class="text-danger" role="alert" />
             <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Name" id="Input.Name" class="form-control" autocomplete="name" aria-required="true" placeholder="John Doe" />
-                <label for="Input.Name">Name</label>
+                <InputText @bind-Value="Input.Name" id="Input.Name" class="form-control" autocomplete="name" aria-required="true" placeholder="Jan Jansen" />
+                <label for="Input.Name">Naam</label>
                 <ValidationMessage For="() => Input.Name" class="text-danger" />
             </div>
             <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="naam@voorbeeld.nl" />
                 <label for="Input.Email">Email</label>
                 <ValidationMessage For="() => Input.Email" class="text-danger" />
             </div>
             <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label for="Input.Password">Password</label>
+                <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="wachtwoord" />
+                <label for="Input.Password">Wachtwoord</label>
                 <ValidationMessage For="() => Input.Password" class="text-danger" />
             </div>
             <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.ConfirmPassword" id="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label for="Input.ConfirmPassword">Confirm Password</label>
+                <InputText type="password" @bind-Value="Input.ConfirmPassword" id="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="wachtwoord" />
+                <label for="Input.ConfirmPassword">Bevestig wachtwoord</label>
                 <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
             </div>
             <button type="submit" class="w-100 btn btn-lg btn-primary" disabled="@isLoading">
                 @if (isLoading)
                 {
-                    <span>Registering...</span>
+                    <span>Registreren...</span>
                 }
                 else
                 {
-                    <span>Register</span>
+                    <span>Registreren</span>
                 }
             </button>
         </EditForm>
@@ -93,18 +93,18 @@
 
             if (response.Success)
             {
-                successMessage = "Registration successful! Redirecting to login...";
+                successMessage = "Registratie succesvol! Doorverwijzen naar inlogpagina...";
                 await Task.Delay(1000);
                 NavigationManager.NavigateTo("/account/login", forceLoad: true);
             }
             else
             {
-                errorMessage = response.Message ?? "Registration failed.";
+                errorMessage = response.Message ?? "Registratie mislukt.";
             }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error: {ex.Message}";
+            errorMessage = $"Fout: {ex.Message}";
         }
         finally
         {
@@ -114,24 +114,24 @@
 
     private sealed class InputModel
     {
-        [Required]
-        [Display(Name = "Name")]
+        [Required(ErrorMessage = "Naam is verplicht")]
+        [Display(Name = "Naam")]
         public string Name { get; set; } = "";
 
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "Email is verplicht")]
+        [EmailAddress(ErrorMessage = "Ongeldig email adres")]
         [Display(Name = "Email")]
         public string Email { get; set; } = "";
 
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [Required(ErrorMessage = "Wachtwoord is verplicht")]
+        [StringLength(100, ErrorMessage = "Het {0} moet minimaal {2} en maximaal {1} tekens lang zijn.", MinimumLength = 8)]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "Wachtwoord")]
         public string Password { get; set; } = "";
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Display(Name = "Bevestig wachtwoord")]
+        [Compare("Password", ErrorMessage = "Het wachtwoord en bevestigingswachtwoord komen niet overeen.")]
         public string ConfirmPassword { get; set; } = "";
     }
 }
