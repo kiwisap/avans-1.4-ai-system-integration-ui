@@ -1,149 +1,112 @@
-using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using avans_1._4_system_integration_ui.Models;
 
-namespace avans_1._4_system_integration_ui.Services
+namespace avans_1._4_system_integration_ui.Services;
+
+public class AuthService(HttpClient httpClient, TokenStorageService tokenStorage)
 {
-    public class AuthService
+    private static readonly JsonSerializerOptions jsonOptions = new()
     {
-        private readonly HttpClient _httpClient;
-        private readonly TokenStorageService _tokenStorage;
+        PropertyNameCaseInsensitive = true
+    };
 
-        public AuthService(HttpClient httpClient, TokenStorageService tokenStorage)
+    public async Task<AuthResponse> LoginAsync(LoginRequestDto request)
+    {
+        try
         {
-            _httpClient = httpClient;
-            _tokenStorage = tokenStorage;
-        }
+            var response = await httpClient.PostAsJsonAsync("/api/identity/login", request);
 
-        public async Task<AuthResponse> LoginAsync(LoginRequest request)
-        {
-            try
+            if (response.IsSuccessStatusCode)
             {
-                var response = await _httpClient.PostAsJsonAsync("/api/identity/login", request);
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var result = JsonSerializer.Deserialize<LoginResponseDto>(responseBody, jsonOptions);
 
-                if (response.IsSuccessStatusCode)
+                var token = result?.AccessToken ?? result?.Token;
+
+                if (!string.IsNullOrEmpty(token))
                 {
-                    var responseBody = await response.Content.ReadAsStringAsync();
-                    var result = JsonSerializer.Deserialize<LoginResponse>(responseBody, new JsonSerializerOptions 
-                    { 
-                        PropertyNameCaseInsensitive = true 
-                    });
-
-                    var token = result?.AccessToken ?? result?.Token;
-
-                    if (!string.IsNullOrEmpty(token))
-                    {
-                        await _tokenStorage.SetTokenAsync(token);
-                        return new AuthResponse { Success = true };
-                    }
-
-                    return new AuthResponse { Success = false, Message = "Invalid response from server - no token received." };
-                }
-                else
-                {
-                    var errorMessage = await ParseProblemDetails(response);
-                    return new AuthResponse 
-                    { 
-                        Success = false, 
-                        Message = errorMessage
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                return new AuthResponse 
-                { 
-                    Success = false,
-                    Message = $"Exception during login: {ex.Message}\nStack: {ex.StackTrace}"
-                };
-            }
-        }
-
-        public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
-        {
-            try
-            {
-                var response = await _httpClient.PostAsJsonAsync("/api/auth/register", request);
-
-                if (response.IsSuccessStatusCode)
-                {
+                    await tokenStorage.SetTokenAsync(token);
                     return new AuthResponse { Success = true };
                 }
-                else
-                {
-                    var errorMessage = await ParseProblemDetails(response);
-                    return new AuthResponse 
-                    { 
-                        Success = false, 
-                        Message = errorMessage 
-                    };
-                }
+
+                return new AuthResponse { Success = false, Message = "Invalid response from server - no token received." };
             }
-            catch (Exception ex)
+            else
             {
+                var errorMessage = await ParseProblemDetails(response);
                 return new AuthResponse 
                 { 
                     Success = false, 
-                    Message = $"Error: {ex.Message}" 
+                    Message = errorMessage
                 };
             }
         }
-
-        public async Task LogoutAsync()
+        catch (Exception ex)
         {
-            await _tokenStorage.RemoveTokenAsync();
+            return new AuthResponse 
+            { 
+                Success = false,
+                Message = $"Exception during login: {ex.Message}\nStack: {ex.StackTrace}"
+            };
         }
+    }
 
-        public async Task<string?> GetTokenAsync()
+    public async Task<AuthResponse> RegisterAsync(RegisterRequestDto request)
+    {
+        try
         {
-            return await _tokenStorage.GetTokenAsync();
-        }
+            var response = await httpClient.PostAsJsonAsync("/api/auth/register", request);
 
-        private async Task<string> ParseProblemDetails(HttpResponseMessage response)
-        {
-            try
+            if (response.IsSuccessStatusCode)
             {
-                var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-                if (problemDetails != null)
-                {
-                    return problemDetails.Detail ?? problemDetails.Title ?? $"Error: {response.StatusCode}";
-                }
+                return new AuthResponse { Success = true };
             }
-            catch
+            else
             {
-                // If parsing fails, return status code
+                var errorMessage = await ParseProblemDetails(response);
+                return new AuthResponse 
+                { 
+                    Success = false, 
+                    Message = errorMessage 
+                };
             }
-            return $"Error: {response.StatusCode}";
+        }
+        catch (Exception ex)
+        {
+            return new AuthResponse 
+            { 
+                Success = false, 
+                Message = $"Error: {ex.Message}" 
+            };
         }
     }
 
-    public class LoginRequest
+    public async Task LogoutAsync()
     {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+        await tokenStorage.RemoveTokenAsync();
     }
 
-    public class RegisterRequest
+    public async Task<string?> GetTokenAsync()
     {
-        public string Name { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+        return await tokenStorage.GetTokenAsync();
     }
 
-    public class LoginResponse
+    private static async Task<string> ParseProblemDetails(HttpResponseMessage response)
     {
-        public string? TokenType { get; set; }
-        public string? AccessToken { get; set; }
-        public int? ExpiresIn { get; set; }
-        public string? RefreshToken { get; set; }
+        try
+        {
+            var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+            if (problemDetails != null)
+            {
+                return problemDetails.Detail ?? problemDetails.Title ?? $"Error: {response.StatusCode}";
+            }
+        }
+        catch
+        {
+            // If parsing fails, return status code
+        }
 
-        // Support both naming conventions
-        public string? Token { get; set; }
-    }
-
-    public class AuthResponse
-    {
-        public bool Success { get; set; }
-        public string? Message { get; set; }
+        return $"Error: {response.StatusCode}";
     }
 }

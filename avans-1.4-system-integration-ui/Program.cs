@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using avans_1._4_system_integration_ui.Components;
 using avans_1._4_system_integration_ui.Services;
+using avans_1._4_system_integration_ui.Authentication;
+using avans_1._4_system_integration_ui.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +38,7 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseExceptionHandler("/error", createScopeForErrors: true);
     app.UseHsts();
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);

@@ -1,37 +1,30 @@
 using Microsoft.JSInterop;
 
-namespace avans_1._4_system_integration_ui.Services
+namespace avans_1._4_system_integration_ui.Services;
+
+public class TokenStorageService(IJSRuntime jsRuntime)
 {
-    public class TokenStorageService
+    private const string TokenKey = "authToken";
+
+    public async Task<string?> GetTokenAsync()
     {
-        private readonly IJSRuntime _jsRuntime;
-        private const string TokenKey = "authToken";
-
-        public TokenStorageService(IJSRuntime jsRuntime)
+        try
         {
-            _jsRuntime = jsRuntime;
+            return await jsRuntime.InvokeAsync<string?>("localStorage.getItem", TokenKey);
         }
-
-        public async Task<string?> GetTokenAsync()
+        catch
         {
-            try
-            {
-                return await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", TokenKey);
-            }
-            catch
-            {
-                return null;
-            }
+            return null;
         }
+    }
 
-        public async Task SetTokenAsync(string token)
-        {
-            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", TokenKey, token);
-        }
+    public async Task SetTokenAsync(string token)
+    {
+        await jsRuntime.InvokeVoidAsync("localStorage.setItem", TokenKey, token);
+    }
 
-        public async Task RemoveTokenAsync()
-        {
-            await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", TokenKey);
-        }
+    public async Task RemoveTokenAsync()
+    {
+        await jsRuntime.InvokeVoidAsync("localStorage.removeItem", TokenKey);
     }
 }
