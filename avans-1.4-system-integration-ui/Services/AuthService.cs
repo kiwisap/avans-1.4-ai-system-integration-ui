@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using avans_1._4_system_integration_ui.Models;
+using avans_1._4_system_integration_ui.Models.Dto;
 
 namespace avans_1._4_system_integration_ui.Services;
 
