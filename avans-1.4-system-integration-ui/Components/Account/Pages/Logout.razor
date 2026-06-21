@@ -1,0 +1,20 @@
+@page "/account/logout"
+
+@using avans_1._4_system_integration_ui.Services
+
+@inject AuthService AuthService
+@inject CustomAuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Logging out...</PageTitle>
+
+<h3>Logging out...</h3>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthService.LogoutAsync();
+        AuthStateProvider.NotifyAuthenticationStateChanged();
+        NavigationManager.NavigateTo("/", forceLoad: true);
+    }
+}

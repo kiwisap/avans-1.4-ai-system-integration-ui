@@ -1,0 +1,16 @@
+﻿@page "/predictions"
+@rendermode InteractiveServer
+
+<PageTitle>Predictions</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+<h1>Predictions</h1>
+
+<p>Inhoud hier...</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>Je moet ingelogd zijn om deze pagina te bekijken.</p>
+        <a href="/account/login">Inloggen</a>
+    </NotAuthorized>
+</AuthorizeView>

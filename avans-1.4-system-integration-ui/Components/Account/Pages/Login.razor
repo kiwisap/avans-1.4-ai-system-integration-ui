@@ -1,0 +1,118 @@
+﻿@page "/account/login"
+@rendermode InteractiveServer
+
+@using System.ComponentModel.DataAnnotations
+@using avans_1._4_system_integration_ui.Services
+@using avans_1._4_system_integration_ui.Models
+
+@inject AuthService AuthService
+@inject CustomAuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Inloggen</PageTitle>
+
+<h1>Inloggen</h1>
+<div class="row">
+    <div class="col-lg-6">
+        <section>
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger" role="alert">@errorMessage</div>
+            }
+            <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+                <DataAnnotationsValidator />
+                <h2>Log in met je account.</h2>
+                <hr />
+                <ValidationSummary class="text-danger" role="alert" />
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="naam@voorbeeld.nl" />
+                    <label for="Input.Email" class="form-label">Email</label>
+                    <ValidationMessage For="() => Input.Email" class="text-danger" />
+                </div>
+                <div class="form-floating mb-3">
+                    <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="wachtwoord" />
+                    <label for="Input.Password" class="form-label">Wachtwoord</label>
+                    <ValidationMessage For="() => Input.Password" class="text-danger" />
+                </div>
+                <div>
+                    <button type="submit" class="w-100 btn btn-lg btn-primary" disabled="@isLoading">
+                        @if (isLoading)
+                        {
+                            <span>Inloggen...</span>
+                        }
+                        else
+                        {
+                            <span>Inloggen</span>
+                        }
+                    </button>
+                </div>
+                <hr />
+                <div>
+                    <p>
+                        <a href="account/register">Registreer als nieuwe gebruiker</a>
+                    </p>
+                </div>
+            </EditForm>
+        </section>
+    </div>
+</div>
+
+@code {
+    private string? errorMessage;
+    private bool isLoading = false;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        Input ??= new();
+    }
+
+    public async Task LoginUser()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var request = new LoginRequestDto
+            {
+                Email = Input.Email,
+                Password = Input.Password
+            };
+
+            var response = await AuthService.LoginAsync(request);
+
+            if (response.Success)
+            {
+                ((CustomAuthenticationStateProvider)AuthStateProvider).NotifyAuthenticationStateChanged();
+                await Task.Delay(100);
+                NavigationManager.NavigateTo("/", forceLoad: false);
+            }
+            else
+            {
+                errorMessage = response.Message ?? "Ongeldige inlogpoging.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Fout: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "Email is verplicht")]
+        [EmailAddress(ErrorMessage = "Ongeldig email adres")]
+        public string Email { get; set; } = "";
+
+        [Required(ErrorMessage = "Wachtwoord is verplicht")]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = "";
+    }
+}
