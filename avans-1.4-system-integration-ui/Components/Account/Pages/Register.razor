@@ -11,54 +11,73 @@
 
 <PageTitle>Registreren</PageTitle>
 
-<h1>Registreren</h1>
+<div class="tp-auth-wrapper">
+    <div class="tp-auth-card">
 
-<div class="row">
-    <div class="col-lg-6">
+        <h2>Registreren</h2>
+
         @if (!string.IsNullOrEmpty(errorMessage))
         {
-            <div class="alert alert-danger" role="alert">@errorMessage</div>
+            <div class="tp-auth-error">@errorMessage</div>
         }
+
         @if (!string.IsNullOrEmpty(successMessage))
         {
-            <div class="alert alert-success" role="alert">@successMessage</div>
+            <div class="tp-auth-success">@successMessage</div>
         }
-        <EditForm Model="Input" method="post" OnValidSubmit="RegisterUser" FormName="register">
+
+        <EditForm Model="Input" method="post" OnValidSubmit="RegisterUser">
             <DataAnnotationsValidator />
-            <h2>Maak een nieuw account aan.</h2>
-            <hr />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Name" id="Input.Name" class="form-control" autocomplete="name" aria-required="true" placeholder="Jan Jansen" />
-                <label for="Input.Name">Naam</label>
+
+            <div class="mb-3">
+                <InputText @bind-Value="Input.Name"
+                           class="form-control"
+                           placeholder="Naam" />
                 <ValidationMessage For="() => Input.Name" class="text-danger" />
             </div>
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="naam@voorbeeld.nl" />
-                <label for="Input.Email">Email</label>
+
+            <div class="mb-3">
+                <InputText @bind-Value="Input.Email"
+                           class="form-control"
+                           placeholder="Email" />
                 <ValidationMessage For="() => Input.Email" class="text-danger" />
             </div>
-            <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="wachtwoord" />
-                <label for="Input.Password">Wachtwoord</label>
+
+            <div class="mb-3">
+                <InputText type="password"
+                           @bind-Value="Input.Password"
+                           class="form-control"
+                           placeholder="Wachtwoord" />
                 <ValidationMessage For="() => Input.Password" class="text-danger" />
             </div>
-            <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.ConfirmPassword" id="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="wachtwoord" />
-                <label for="Input.ConfirmPassword">Bevestig wachtwoord</label>
+
+            <div class="mb-3">
+                <InputText type="password"
+                           @bind-Value="Input.ConfirmPassword"
+                           class="form-control"
+                           placeholder="Bevestig wachtwoord" />
                 <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
             </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary" disabled="@isLoading">
+
+            <button type="submit"
+                    class="tp-auth-btn"
+                    disabled="@isLoading">
+
                 @if (isLoading)
                 {
                     <span>Registreren...</span>
                 }
                 else
                 {
-                    <span>Registreren</span>
+                    <span>Account aanmaken</span>
                 }
             </button>
         </EditForm>
+
+        <a class="tp-auth-link" href="/account/login">
+            Al een account? Inloggen
+        </a>
+
     </div>
 </div>
 
@@ -94,8 +113,8 @@
 
             if (response.Success)
             {
-                successMessage = "Registratie succesvol! Doorverwijzen naar inlogpagina...";
-                await Task.Delay(1000);
+                successMessage = "Registratie succesvol! Doorverwijzen...";
+                await Task.Delay(800);
                 NavigationManager.NavigateTo("/account/login", forceLoad: true);
             }
             else
@@ -116,23 +135,17 @@
     private sealed class InputModel
     {
         [Required(ErrorMessage = "Naam is verplicht")]
-        [Display(Name = "Naam")]
         public string Name { get; set; } = "";
 
         [Required(ErrorMessage = "Email is verplicht")]
-        [EmailAddress(ErrorMessage = "Ongeldig email adres")]
-        [Display(Name = "Email")]
+        [EmailAddress]
         public string Email { get; set; } = "";
 
         [Required(ErrorMessage = "Wachtwoord is verplicht")]
-        [StringLength(100, ErrorMessage = "Het {0} moet minimaal {2} en maximaal {1} tekens lang zijn.", MinimumLength = 8)]
-        [DataType(DataType.Password)]
-        [Display(Name = "Wachtwoord")]
         public string Password { get; set; } = "";
 
-        [DataType(DataType.Password)]
-        [Display(Name = "Bevestig wachtwoord")]
-        [Compare("Password", ErrorMessage = "Het wachtwoord en bevestigingswachtwoord komen niet overeen.")]
+        [Required(ErrorMessage = "Bevestig je wachtwoord")]
+        [Compare("Password", ErrorMessage = "Wachtwoorden komen niet overeen")]
         public string ConfirmPassword { get; set; } = "";
     }
 }

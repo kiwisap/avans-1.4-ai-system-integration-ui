@@ -1,0 +1,83 @@
+.heatmap-title {
+    text-align: center;
+    color: #2d6a4f;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* FILTER BUTTONS */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.pill {
+    border-radius: 20px;
+    padding: 6px 14px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .pill:hover {
+        background: #2d6a4f;
+        color: white;
+    }
+
+/* MAP */
+#map {
+    height: 450px;
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+/* LEGEND */
+.legend-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 15px;
+    font-size: 0.9rem;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+/* COLORS */
+.red {
+    background: red;
+}
+
+.blue {
+    background: blue;
+}
+
+.goldenrod {
+    background: goldenrod;
+}
+
+.green {
+    background: green;
+}
+
+.purple {
+    background: purple;
+}
+
+.orange {
+    background: orange;
+}
+
+.hotpink {
+    background: hotpink;
+}

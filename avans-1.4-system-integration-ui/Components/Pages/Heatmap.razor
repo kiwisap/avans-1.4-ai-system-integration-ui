@@ -1,48 +1,57 @@
-﻿
-@page "/Heatmap"
+﻿@page "/Heatmap"
 @rendermode InteractiveServer
 @inject IJSRuntime JS
 
-<PageTitle> Heatmap</PageTitle>
+<PageTitle>Heatmap</PageTitle>
 
-<h1>Heatmap</h1>
+<h1 class="heatmap-title">Heatmap</h1>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+<!-- FILTER BAR -->
+<div class="filter-bar">
+
+    <button class="pill" @onclick="@(() => SetPeriod("1dag"))">1 dag</button>
+    <button class="pill" @onclick="@(() => SetPeriod("1week"))">1 week</button>
+    <button class="pill" @onclick="@(() => SetPeriod("1maand"))">1 maand</button>
+    <button class="pill" @onclick="@(() => SetPeriod("3maanden"))">3 maanden</button>
+    <button class="pill" @onclick="@(() => SetPeriod("6maanden"))">6 maanden</button>
+    <button class="pill" @onclick="@(() => SetPeriod("1jaar"))">1 jaar</button>
+    <button class="pill" @onclick="@(() => SetPeriod("alles"))">Alle data</button>
+
+</div>
+
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       crossorigin="" />
-
-<style>
-    #map {
-        height: 400px;
-        width: 100%;
-    }
-
-    h1 {
-        text-align: center;
-    }
-</style>
 
 <div id="map"></div>
 
-<div>
-    <h2>Legenda</h2>
-    <p>
-        <span style="color: red;">rood</span> = plastic<br>
-        <span style="color: blue;">blauw</span> = papier/karton<br>
-        <span style="color: goldenrod;">geel</span> = glas<br>
-        <span style="color: green;">groen</span> = blik<br>
-        <span style="color: purple;">paars</span> = elektrische apparaten<br>
-        <span style="color: orange;">oranje</span> = grofvuil<br>
-        <span style="color: hotpink;">roze</span> = rest
-    </p>
+<!-- LEGENDA -->
+<div class="legend-grid">
+    <div><span class="dot red"></span> Plastic</div>
+    <div><span class="dot blue"></span> Papier/Karton</div>
+    <div><span class="dot goldenrod"></span> Glas</div>
+    <div><span class="dot green"></span> Blik</div>
+    <div><span class="dot purple"></span> Elektronica</div>
+    <div><span class="dot orange"></span> Grofvuil</div>
+    <div><span class="dot hotpink"></span> Rest</div>
 </div>
 
 @code {
+
+    private string selectedPeriod = "alles";
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             await JS.InvokeVoidAsync("initMap");
         }
+    }
+
+    private async Task SetPeriod(string period)
+    {
+        selectedPeriod = period;
+
+        await JS.InvokeVoidAsync("toonCirkelsIfReady", period);
     }
 }

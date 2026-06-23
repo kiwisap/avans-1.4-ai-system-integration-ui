@@ -24,8 +24,14 @@
 
         if (geplaatsteMarker) map.removeLayer(geplaatsteMarker);
 
-        geplaatsteMarker = L.marker([lat, lng]).addTo(map)
-            .bindPopup('Lat: ' + lat + '<br>Lng: ' + lng)
+        geplaatsteMarker = L.marker([lat, lng], {
+            title: "Geselecteerde locatie"
+        }).addTo(map)
+            .bindPopup(
+                '<div style="font-weight:bold;color:#2d6a4f;">Geselecteerde locatie</div>' +
+                'Lat: ' + lat + '<br>' +
+                'Lng: ' + lng
+            )
             .openPopup();
 
         DotNet.invokeMethodAsync('avans-1.4-system-integration-ui', 'OnMarkerGeplaatst', parseFloat(lat), parseFloat(lng));

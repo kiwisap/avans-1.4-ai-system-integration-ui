@@ -11,49 +11,52 @@
 
 <PageTitle>Inloggen</PageTitle>
 
-<h1>Inloggen</h1>
-<div class="row">
-    <div class="col-lg-6">
-        <section>
-            @if (!string.IsNullOrEmpty(errorMessage))
-            {
-                <div class="alert alert-danger" role="alert">@errorMessage</div>
-            }
-            <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
-                <DataAnnotationsValidator />
-                <h2>Log in met je account.</h2>
-                <hr />
-                <ValidationSummary class="text-danger" role="alert" />
-                <div class="form-floating mb-3">
-                    <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="naam@voorbeeld.nl" />
-                    <label for="Input.Email" class="form-label">Email</label>
-                    <ValidationMessage For="() => Input.Email" class="text-danger" />
-                </div>
-                <div class="form-floating mb-3">
-                    <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="wachtwoord" />
-                    <label for="Input.Password" class="form-label">Wachtwoord</label>
-                    <ValidationMessage For="() => Input.Password" class="text-danger" />
-                </div>
-                <div>
-                    <button type="submit" class="w-100 btn btn-lg btn-primary" disabled="@isLoading">
-                        @if (isLoading)
-                        {
-                            <span>Inloggen...</span>
-                        }
-                        else
-                        {
-                            <span>Inloggen</span>
-                        }
-                    </button>
-                </div>
-                <hr />
-                <div>
-                    <p>
-                        <a href="account/register">Registreer als nieuwe gebruiker</a>
-                    </p>
-                </div>
-            </EditForm>
-        </section>
+<div class="tp-auth-wrapper">
+    <div class="tp-auth-card">
+
+        <h2>Inloggen</h2>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="tp-auth-error">@errorMessage</div>
+        }
+
+        <EditForm Model="Input" OnValidSubmit="LoginUser">
+            <DataAnnotationsValidator />
+
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.Email"
+                           class="form-control"
+                           placeholder="Email" />
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputText type="password"
+                           @bind-Value="Input.Password"
+                           class="form-control"
+                           placeholder="Wachtwoord" />
+            </div>
+
+            <button type="submit"
+                    class="tp-auth-btn"
+                    disabled="@isLoading">
+
+                @if (isLoading)
+                {
+                    <span>Inloggen...</span>
+                }
+                else
+                {
+                    <span>Inloggen</span>
+                }
+            </button>
+
+        </EditForm>
+
+        <a class="tp-auth-link" href="account/register">
+            Nog geen account? Registreren
+        </a>
+
     </div>
 </div>
 
