@@ -1,7 +1,7 @@
 ﻿@page "/predictions"
 @rendermode InteractiveServer
 @inject IJSRuntime JS
-@inject HttpClient Http
+@inject PredictionsService PredictionsService
 
 <PageTitle>Predictions</PageTitle>
 
@@ -134,26 +134,38 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // CSV laden
-        var csv = await Http.GetStringAsync("/js/litter_breda.csv");
-        var regels = csv.Trim().Split('\n');
-        var headers = regels[0].Split(',').Select(h => h.Trim()).ToList();
-
-        for (int i = 1; i < regels.Length; i++)
+        var request = new PredictionRequestDto
         {
-            var kolommen = regels[i].Split(',');
-            if (kolommen.Length < headers.Count) continue;
+            Latitude = 51.5887,
+            Longitude = 4.775,
+            Temperature = 18.5,
+            WeatherType = "Sunny",
+            DateTime = DateTimeOffset.UtcNow
+        };
 
-            var item = new LitterRecord
-            {
-                WasteType = kolommen[headers.IndexOf("WasteType")].Trim(),
-                WasteAmount = double.TryParse(kolommen[headers.IndexOf("WasteAmount")].Trim(), out var amt) ? amt : 0,
-                DateTime = DateTime.TryParse(kolommen[headers.IndexOf("DateTime")].Trim(), out var dt) ? dt : DateTime.MinValue,
-            };
-            allData.Add(item);
-        }
+        var result = await PredictionsService.PredictAsync(request);
 
-        BuildChartData(allData);
+
+        // CSV laden
+        // var csv = await Http.GetStringAsync("/js/litter_breda.csv");
+        // var regels = csv.Trim().Split('\n');
+        // var headers = regels[0].Split(',').Select(h => h.Trim()).ToList();
+
+        // for (int i = 1; i < regels.Length; i++)
+        // {
+        //     var kolommen = regels[i].Split(',');
+        //     if (kolommen.Length < headers.Count) continue;
+
+        //     var item = new LitterRecord
+        //     {
+        //         WasteType = kolommen[headers.IndexOf("WasteType")].Trim(),
+        //         WasteAmount = double.TryParse(kolommen[headers.IndexOf("WasteAmount")].Trim(), out var amt) ? amt : 0,
+        //         DateTime = DateTime.TryParse(kolommen[headers.IndexOf("DateTime")].Trim(), out var dt) ? dt : DateTime.MinValue,
+        //     };
+        //     allData.Add(item);
+        // }
+
+        // BuildChartData(allData);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

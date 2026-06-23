@@ -13,17 +13,27 @@ builder.Services.AddBlazorBootstrap();
 builder.Services.AddCascadingAuthenticationState();
 
 // Configure HttpClient for API calls with bearer token
-var apiBaseUrl = builder.Configuration.GetValue<string>("ApiSettings:BaseUrl") ?? "https://localhost:7000";
-
-builder.Services.AddScoped<TokenStorageService>();
-builder.Services.AddScoped<AuthorizationMessageHandler>();
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7000/") });
-
+var apiBaseUrl = builder.Configuration.GetValue<string>("ApiSettings:BackendBaseUrl") ?? "https://localhost:7000";
 builder.Services.AddHttpClient<AuthService>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
 })
 .AddHttpMessageHandler<AuthorizationMessageHandler>();
+
+// Configure HttpClient for PredictionsService with api key
+var predictionsApiBaseUrl = builder.Configuration.GetValue<string>("ApiSettings:PredictionsBaseUrl") ?? "https://localhost:8000";
+var apiKey = builder.Configuration.GetValue<string>("ai-api-key");
+builder.Services.AddHttpClient<PredictionsService>(client =>
+{
+    client.BaseAddress = new Uri(predictionsApiBaseUrl);
+    client.DefaultRequestHeaders.Add("X-API-KEY", apiKey);
+});
+
+builder.Services.AddScoped<TokenStorageService>();
+builder.Services.AddScoped<AuthorizationMessageHandler>();
+builder.Services.AddScoped(sp => new HttpClient {
+    BaseAddress = new Uri("https://localhost:7000/")
+});
 
 // Register custom authentication services
 builder.Services.AddScoped<CustomAuthenticationStateProvider>();
