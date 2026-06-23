@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
+builder.Services.AddBlazorBootstrap();
 builder.Services.AddCascadingAuthenticationState();
 
 // Configure HttpClient for API calls with bearer token
@@ -17,6 +17,7 @@ var apiBaseUrl = builder.Configuration.GetValue<string>("ApiSettings:BaseUrl") ?
 
 builder.Services.AddScoped<TokenStorageService>();
 builder.Services.AddScoped<AuthorizationMessageHandler>();
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7000/") });
 
 builder.Services.AddHttpClient<AuthService>(client =>
 {

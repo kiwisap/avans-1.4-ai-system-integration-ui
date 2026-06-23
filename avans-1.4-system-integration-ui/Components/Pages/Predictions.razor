@@ -1,16 +1,267 @@
 ﻿@page "/predictions"
 @rendermode InteractiveServer
+@inject IJSRuntime JS
+@inject HttpClient Http
 
 <PageTitle>Predictions</PageTitle>
 
 <AuthorizeView>
     <Authorized>
-<h1>Predictions</h1>
+        <h1>Predictions</h1>
 
-<p>Inhoud hier...</p>
+        <style>
+                    #map {
+                        height: 400px;
+                        width: 100%;
+                    }
+
+                    h1 {
+                        text-align: center;
+                    }
+        </style>
+
+        @* Dropdown boven de kaart *@
+        <div class="mb-2 d-flex justify-content-end">
+            <select class="form-select w-auto" @onchange="OnPeriodeChanged">
+                <option value="alles">Alle data</option>
+                <option value="1dag">Afgelopen dag</option>
+                <option value="1week">Afgelopen week</option>
+                <option value="1maand">Afgelopen maand</option>
+                <option value="3maanden">Afgelopen 3 maanden</option>
+                <option value="6maanden">Afgelopen 6 maanden</option>
+                <option value="1jaar">Afgelopen jaar</option>
+            </select>
+        </div>
+        @if (markerLat != 0)
+        {
+            <div class="alert alert-info mt-2">
+                Geselecteerde locatie: <strong>@markerLat, @markerLng</strong>
+            </div>
+        }
+
+        <div id="map" class="mb-4"></div>
+
+        <div class="row g-4 mt-2">
+            @* Bar Chart *@
+            <div class="col-12 col-lg-7">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Afval per categorie</h5>
+                        <small class="text-muted">Totaal aantal (stuks) in geselecteerde periode</small>
+                    </div>
+                    <div class="card-body">
+                        <BarChart @ref="barChart" Width="500" />
+                    </div>
+                </div>
+            </div>
+
+            @* Polar Area Chart *@
+            <div class="col-12 col-lg-5">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Verdeling per afvaltype</h5>
+                        <small class="text-muted">Procentueel aandeel</small>
+                    </div>
+                    <div class="card-body">
+                        <PolarAreaChart @ref="polarAreaChart" Width="400" />
+                    </div>
+                </div>
+            </div>
+        </div>
     </Authorized>
     <NotAuthorized>
         <p>Je moet ingelogd zijn om deze pagina te bekijken.</p>
         <a href="/account/login">Inloggen</a>
     </NotAuthorized>
 </AuthorizeView>
+
+@code {
+    private BarChart barChart = default!;
+    private BarChartOptions barChartOptions = default!;
+    private ChartData barChartData = default!;
+    private double markerLat;
+    private double markerLng;
+
+    private static Action<double, double>? _onMarkerGeplaatst;
+
+    protected override void OnInitialized()
+    {
+        _onMarkerGeplaatst = (lat, lng) =>
+        {
+            markerLat = lat;
+            markerLng = lng;
+            InvokeAsync(StateHasChanged);
+        };
+    }
+
+    [JSInvokable]
+    public static void OnMarkerGeplaatst(double lat, double lng)
+    {
+        _onMarkerGeplaatst?.Invoke(lat, lng);
+    }
+
+    private PolarAreaChart polarAreaChart = default!;
+    private PolarAreaChartOptions polarAreaChartOptions = default!;
+    private ChartData polarChartData = default!;
+
+    private static readonly string[] WasteTypes = ["Plastic", "Paper/Cardboard", "Glass", "Cans", "Electronics", "Bulky", "Residual"];
+
+    private static readonly List<string> BackgroundColors =
+    [
+        "rgba(13, 110, 253, 0.8)",
+        "rgba(25, 135, 84, 0.8)",
+        "rgba(255, 193, 7, 0.8)",
+        "rgba(220, 53, 69, 0.8)",
+        "rgba(102, 16, 242, 0.8)",
+        "rgba(13, 202, 240, 0.8)",
+        "rgba(255, 102, 0, 0.8)",
+    ];
+
+    private static readonly List<string> BorderColors =
+    [
+        "rgb(13, 110, 253)",
+        "rgb(25, 135, 84)",
+        "rgb(255, 193, 7)",
+        "rgb(220, 53, 69)",
+        "rgb(102, 16, 242)",
+        "rgb(13, 202, 240)",
+        "rgb(255, 102, 0)",
+    ];
+
+    private List<LitterRecord> allData = [];
+    private string geselecteerdePeriode = "alles";
+    private bool chartsInitialized = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // CSV laden
+        var csv = await Http.GetStringAsync("/js/litter_breda.csv");
+        var regels = csv.Trim().Split('\n');
+        var headers = regels[0].Split(',').Select(h => h.Trim()).ToList();
+
+        for (int i = 1; i < regels.Length; i++)
+        {
+            var kolommen = regels[i].Split(',');
+            if (kolommen.Length < headers.Count) continue;
+
+            var item = new LitterRecord
+            {
+                WasteType = kolommen[headers.IndexOf("WasteType")].Trim(),
+                WasteAmount = double.TryParse(kolommen[headers.IndexOf("WasteAmount")].Trim(), out var amt) ? amt : 0,
+                DateTime = DateTime.TryParse(kolommen[headers.IndexOf("DateTime")].Trim(), out var dt) ? dt : DateTime.MinValue,
+            };
+            allData.Add(item);
+        }
+
+        BuildChartData(allData);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initMapPredictions");
+            await barChart.InitializeAsync(barChartData, barChartOptions);
+            await polarAreaChart.InitializeAsync(polarChartData, polarAreaChartOptions);
+            chartsInitialized = true;
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task OnPeriodeChanged(ChangeEventArgs e)
+    {
+        geselecteerdePeriode = e.Value?.ToString() ?? "alles";
+
+        // Eerst initMap aanroepen als kaart nog niet bestaat
+        await JS.InvokeVoidAsync("toonCirkelsIfReady", geselecteerdePeriode);
+
+        // Gefilterde data berekenen
+        var gefilterd = FilterData(allData, geselecteerdePeriode);
+        BuildChartData(gefilterd);
+
+        if (chartsInitialized)
+        {
+            await barChart.UpdateAsync(barChartData, barChartOptions);
+            await polarAreaChart.UpdateAsync(polarChartData, polarAreaChartOptions);
+        }
+    }
+
+    private List<LitterRecord> FilterData(List<LitterRecord> data, string periode)
+    {
+        var nu = DateTime.Now;
+        var vanaf = periode switch
+        {
+            "1dag" => nu.AddDays(-1),
+            "1week" => nu.AddDays(-7),
+            "1maand" => nu.AddMonths(-1),
+            "3maanden" => nu.AddMonths(-3),
+            "6maanden" => nu.AddMonths(-6),
+            "1jaar" => nu.AddYears(-1),
+            _ => DateTime.MinValue
+        };
+
+        return data.Where(d => d.DateTime >= vanaf).ToList();
+    }
+
+    private void BuildChartData(List<LitterRecord> data)
+    {
+        var totalen = WasteTypes.Select(t =>
+            data.Where(d => d.WasteType == t).Sum(d => d.WasteAmount)
+        ).ToArray();
+
+        var totaal = totalen.Sum();
+        var percentages = totalen.Select(t => totaal > 0 ? Math.Round(t / totaal * 100, 1) : 0).ToArray();
+
+        barChartData = new ChartData
+        {
+            Labels = [.. WasteTypes],
+            Datasets =
+            [
+                new BarChartDataset
+                {
+                    Label = "Aantal (stuks)",
+                    Data = [.. totalen.Select(d => (double?)d)],
+                    BackgroundColor = BackgroundColors,
+                    BorderColor = BorderColors,
+                    BorderWidth = [1.5],
+                    BorderRadius = new List<double> { 6 },
+                }
+            ]
+        };
+
+        barChartOptions = new BarChartOptions
+        {
+            Responsive = true,
+            Interaction = new Interaction { Mode = InteractionMode.Index }
+        };
+        barChartOptions.Plugins.Legend.Display = false;
+        barChartOptions.Scales.Y!.BeginAtZero = true;
+
+        polarChartData = new ChartData
+        {
+            Labels = [.. WasteTypes],
+            Datasets =
+            [
+                new PolarAreaChartDataset
+                {
+                    Label = "Aandeel (%)",
+                    Data = [.. percentages.Select(d => (double?)d)],
+                    BackgroundColor = BackgroundColors,
+                    BorderColor = BorderColors,
+                    BorderWidth = new List<double> { 1.5 },
+                }
+            ]
+        };
+
+        polarAreaChartOptions = new PolarAreaChartOptions { Responsive = true };
+        polarAreaChartOptions.Plugins.Legend.Position = "bottom";
+    }
+
+    private class LitterRecord
+    {
+        public string WasteType { get; set; } = "";
+        public double WasteAmount { get; set; }
+        public DateTime DateTime { get; set; }
+    }
+}
