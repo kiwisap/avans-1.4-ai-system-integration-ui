@@ -6,14 +6,21 @@ namespace avans_1._4_system_integration_ui.Http;
 public class AuthorizationMessageHandler(TokenStorageService tokenStorage) : DelegatingHandler
 {
     protected override async Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request,
-        CancellationToken cancellationToken)
+     HttpRequestMessage request,
+     CancellationToken cancellationToken)
     {
-        var token = await tokenStorage.GetTokenAsync();
-
-        if (!string.IsNullOrWhiteSpace(token))
+        try
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var token = await tokenStorage.GetTokenAsync();
+
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+        }
+        catch
+        {
+            // JS interop nog niet beschikbaar, request zonder token sturen
         }
 
         return await base.SendAsync(request, cancellationToken);

@@ -25,11 +25,12 @@ public class TrashDataService(HttpClient httpClient)
                 return result ?? [];
             }
 
-            throw new Exception("HOI!");
+            var error = await response.Content.ReadAsStringAsync();
+            throw new Exception($"HTTP {(int)response.StatusCode}: {error}");
         }
         catch (Exception ex)
         {
-            throw new Exception("HOI!", ex);
+          throw new Exception("HOI!", ex);
         }
     }
 }

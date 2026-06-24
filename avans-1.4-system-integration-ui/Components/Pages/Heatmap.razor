@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject IJSRuntime JS
 @inject TrashDataService TrashDataService
+@inject CustomAuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Heatmap</PageTitle>
 
@@ -63,19 +64,38 @@
         Dus hoe hoger de prioriteits score hoe belangrijker het is om het op te ruimen.
     </p>
 </div>
-@code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    @code {
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+{
+    if (firstRender)
     {
-        if (firstRender)
-        {
-            await JS.InvokeVoidAsync("initMap");
-        }
+        await JS.InvokeVoidAsync("eval", @"
+            (function waitForInitMap() {
+                if (typeof window.initMap === 'function') {
+                    window.initMap();
+                } else {
+                    setTimeout(waitForInitMap, 100);
+                }
+            })();
+        ");
 
-        // TODO link with map
-        var trashData = await TrashDataService.GetTrashDataAsync(new TrashDataTimeFrameDto
+        // Wacht tot JS interop beschikbaar is
+        await Task.Delay(500);
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
         {
-            StartDate = DateTime.UtcNow.AddDays(-10),
-            EndDate = DateTime.UtcNow
-        });
+            var trashData = await TrashDataService.GetTrashDataAsync(new TrashDataTimeFrameDto
+            {
+                StartDate = DateTime.UtcNow.AddDays(-10),
+                EndDate = DateTime.UtcNow
+            });
+
+            await JS.InvokeVoidAsync("loadTrashData", trashData);
+        }
     }
 }
+    }
+

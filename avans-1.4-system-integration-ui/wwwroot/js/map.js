@@ -26,10 +26,33 @@
     };
 
     window._alleData = [];
+
+    window.loadTrashData = function (data) {
+        window._alleData = data;
+        window.toonCirkels('alles');
+    };
+
     var cirkels = [];
     var clusterGroep = null;
 
+    //code voor WasteAmount met de data van Sensoring
+    function buildLocatieTellingen(data) {
+        var tellingen = {};
+
+        data.forEach(function (item) {
+
+            var sleutel =
+                parseFloat(item.Latitude).toFixed(4) + "_" +
+                parseFloat(item.Longitude).toFixed(4);
+
+            tellingen[sleutel] = (tellingen[sleutel] || 0) + 1;
+        });
+
+        return tellingen;
+    }
+
     window.toonCirkels = function (periode) {
+        var locatieTellingen = buildLocatieTellingen(window._alleData);
         cirkels.forEach(c => map.removeLayer(c));
         cirkels = [];
 
@@ -54,24 +77,57 @@
         if (periode === 'alles') vanafDatum = new Date(0);
 
         window._alleData.forEach(function (item) {
-            var datum = new Date(item.DateTime);
+            //Deze gebruiken als de data van sensoring niet werkt!!!
+            // var datum = new Date(item.DateTime);
+            var datum = new Date(item.dateTime);
+
             if (datum >= vanafDatum) {
-                var kleur = kleurPerType[item.WasteType] || 'gray';
-                var opacity = parseFloat(item.WasteAmount) / 20;
-                var prioriteitScore = scorePerType[item.WasteType] * parseFloat(item.WasteAmount);
+                //Deze gebruiken als de data van sensoring niet werkt!!!
+                // var kleur = kleurPerType[item.WasteType] || 'gray';
+                var kleur = kleurPerType[item.trashType] || 'gray';
+
+                //Deze gebruiken als de data van sensoring niet werkt!!!
+                // var sleutel =
+                //     parseFloat(item.Latitude).toFixed(4) + "_" +
+                //     parseFloat(item.Longitude).toFixed(4);
+                var sleutel =
+                    parseFloat(item.latitude).toFixed(4) + "_" +
+                    parseFloat(item.longitude).toFixed(4);
+
+                var wasteAmount = locatieTellingen[sleutel] || 1;
+
+                //Deze gebruiken als de data van sensoring niet werkt!!!
+                // var opacity = parseFloat(item.WasteAmount) / 20;
+                var opacity = Math.min(wasteAmount / 10, 1);
+
+                //Deze gebruiken als de data van sensoring niet werkt!!!
+                // var prioriteitScore = scorePerType[item.WasteType] * parseFloat(item.WasteAmount);
+                var prioriteitScore = (scorePerType[item.trashType] || 1) * wasteAmount;
 
                 var cirkel = L.circle(
-                    [parseFloat(item.Latitude), parseFloat(item.Longitude)],
+                    //Deze gebruiken als de data van sensoring niet werkt!!!
+                    // [parseFloat(item.Latitude), parseFloat(item.Longitude)],
+                    [parseFloat(item.latitude), parseFloat(item.longitude)],
                     {
                         color: kleur, fillColor: kleur,
                         fillOpacity: opacity, opacity: opacity, radius: 5
                     }
+                    //Deze gebruiken als de data van sensoring niet werkt!!!
+                    // ).addTo(map).bindPopup(
+                    //     '<b>' + item.WasteType + '</b><br>' +
+                    //     'Aantal: ' + item.WasteAmount + '<br>' +
+                    //     'Datum: ' + item.DateTime + '<br>' +
+                    //     'Prioriteitsscore: ' + prioriteitScore
+                    //     );
                 ).addTo(map).bindPopup(
-                    '<b>' + item.WasteType + '</b><br>' +
-                    'Aantal: ' + item.WasteAmount + '<br>' +
-                    'Datum: ' + item.DateTime + '<br>' +
+                    //Deze gebruiken als de data van sensoring niet werkt!!!
+                    // '<b>' + item.WasteType + '</b><br>' +
+                    // 'Datum: ' + item.DateTime + '<br>' +
+                    '<b>' + item.trashType + '</b><br>' +
+                    'Datum: ' + item.dateTime + '<br>' +
                     'Prioriteitsscore: ' + prioriteitScore
                 );
+
                 cirkels.push(cirkel);
 
                 if (prioriteitScore > 120) {
@@ -79,33 +135,21 @@
                         html: '<div style="background:red;color:white;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:bold;">!</div>',
                         className: '', iconSize: [20, 20]
                     });
-                    clusterGroep.addLayer(L.marker([parseFloat(item.Latitude), parseFloat(item.Longitude)], { icon: waarschuwing }));
+                    clusterGroep.addLayer(L.marker(
+                        //Deze gebruiken als de data van sensoring niet werkt!!!
+                        // [parseFloat(item.Latitude), parseFloat(item.Longitude)],
+                        [parseFloat(item.latitude), parseFloat(item.longitude)],
+                        { icon: waarschuwing }
+                    ));
                 }
             }
         });
-
         map.addLayer(clusterGroep);
     };
 
-    fetch('/js/litter_breda.csv')
-        .then(r => r.text())
-        .then(function (csvText) {
-            var regels = csvText.trim().split('\n');
-            var headers = regels[0].split(',').map(h => h.trim());
-            for (var i = 1; i < regels.length; i++) {
-                var kolommen = regels[i].split(',');
-                var item = {};
-                headers.forEach(function (h, index) {
-                    item[h] = kolommen[index]?.trim();
-                });
-                window._alleData.push(item);
-            }
-            window.toonCirkels('alles');
-        });
-};
-
-window.toonCirkelsIfReady = function (periode) {
-    if (typeof window.toonCirkels === 'function') {
-        window.toonCirkels(periode);
-    }
+    window.toonCirkelsIfReady = function (periode) {
+        if (typeof window.toonCirkels === 'function') {
+            window.toonCirkels(periode);
+        }
+    };
 };

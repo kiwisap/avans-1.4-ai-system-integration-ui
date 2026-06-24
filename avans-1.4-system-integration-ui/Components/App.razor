@@ -25,20 +25,20 @@
 
 <body>
     <script>
-    window.applyDarkMode = function () {
-        if (localStorage.getItem('tp-dark-mode') === 'true') {
-            document.documentElement.classList.add('dark-mode');
-        } else {
-            document.documentElement.classList.remove('dark-mode');
-        }
-    };
+        window.applyDarkMode = function () {
+            if (localStorage.getItem('tp-dark-mode') === 'true') {
+                document.documentElement.classList.add('dark-mode');
+            } else {
+                document.documentElement.classList.remove('dark-mode');
+            }
+        };
 
-    window.applyDarkMode();
-    document.addEventListener('enhancedload', window.applyDarkMode);
-</script>
-<Routes @rendermode="InteractiveServer" />
+        window.applyDarkMode();
+        document.addEventListener('enhancedload', window.applyDarkMode);
+    </script>
+
+    <Routes @rendermode="InteractiveServer" />
     <ReconnectModal />
-    <script src="@Assets["_framework/blazor.web.js"]"></script>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -49,10 +49,12 @@
     <!-- Map JS -->
     <script src="js/map.js"></script>
     <script src="js/map_predictions.js"></script>
-    <!-- Chart.js (vereist door Blazor.Bootstrap) -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="_content/Blazor.Bootstrap/blazor.bootstrap.js"></script>  
+    <script src="_content/Blazor.Bootstrap/blazor.bootstrap.js"></script>
+
+    <!-- Blazor als laatste -->
+    <script src="@Assets["_framework/blazor.web.js"]"></script>
 </body>
-s
 
 </html>
