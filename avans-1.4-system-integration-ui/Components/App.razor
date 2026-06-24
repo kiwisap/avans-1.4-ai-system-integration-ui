@@ -24,7 +24,19 @@
 </head>
 
 <body>
-    <Routes />
+    <script>
+    window.applyDarkMode = function () {
+        if (localStorage.getItem('tp-dark-mode') === 'true') {
+            document.documentElement.classList.add('dark-mode');
+        } else {
+            document.documentElement.classList.remove('dark-mode');
+        }
+    };
+
+    window.applyDarkMode();
+    document.addEventListener('enhancedload', window.applyDarkMode);
+</script>
+<Routes @rendermode="InteractiveServer" />
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
 

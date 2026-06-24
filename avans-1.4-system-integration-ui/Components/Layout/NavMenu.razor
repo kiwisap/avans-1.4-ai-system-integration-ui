@@ -89,7 +89,6 @@
         margin: 8px 20px;
     }
 
-    /* Dark mode toggle knop */
     .tp-darkmode-row {
         padding: 10px 20px;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -110,7 +109,6 @@
             font-size: 15px;
         }
 
-    /* Toggle switch */
     .tp-toggle {
         position: relative;
         width: 38px;
@@ -154,7 +152,6 @@
         transform: translateX(16px);
     }
 
-    /* User section */
     .tp-user-section {
         padding: 12px 20px;
         border-top: 1px solid rgba(255, 255, 255, 0.12);
@@ -266,7 +263,6 @@
         </AuthorizeView>
     </nav>
 
-    <!-- Dark mode toggle -->
     <div class="tp-darkmode-row">
         <span class="tp-darkmode-label">
             <span class="bi @(isDarkMode ? "bi-moon-fill" : "bi-sun-fill")" aria-hidden="true"></span>
@@ -313,35 +309,25 @@
             await Task.Delay(100);
             ((CustomAuthenticationStateProvider)AuthStateProvider).NotifyAuthenticationStateChanged();
 
-            // Lees de voorkeur uit localStorage zodat het na refresh bewaard blijft
             var opgeslagen = await JS.InvokeAsync<string>("localStorage.getItem", "tp-dark-mode");
-            if (opgeslagen == "true")
-            {
-                isDarkMode = true;
-                await JS.InvokeVoidAsync("document.body.classList.add", "dark-mode");
-                StateHasChanged();
-            }
+            isDarkMode = opgeslagen == "true";
+            await JS.InvokeVoidAsync("applyDarkMode");
+            StateHasChanged();
         }
     }
 
     private async Task ToggleDarkMode()
     {
         isDarkMode = !isDarkMode;
-
-        if (isDarkMode)
-        {
-            await JS.InvokeVoidAsync("document.body.classList.add", "dark-mode");
-        }
-        else
-        {
-            await JS.InvokeVoidAsync("document.body.classList.remove", "dark-mode");
-        }
-
-        // Sla voorkeur op in localStorage
         await JS.InvokeVoidAsync("localStorage.setItem", "tp-dark-mode", isDarkMode.ToString().ToLower());
+        await JS.InvokeVoidAsync("applyDarkMode");
     }
 
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => StateHasChanged();
+    private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        await JS.InvokeVoidAsync("applyDarkMode");
+        StateHasChanged();
+    }
 
     private void OnAuthenticationStateChanged(Task<AuthenticationState> task) => InvokeAsync(StateHasChanged);
 
