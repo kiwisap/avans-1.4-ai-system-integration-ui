@@ -3,71 +3,303 @@
 
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
+@inject IJSRuntime JS
 @using avans_1._4_system_integration_ui.Services
 @inject AuthService AuthService
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Trash Pickers</a>
-    </div>
-</div>
+<style>
+    .tp-sidebar {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background-color: #2d6a4f;
+    }
 
+    .tp-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 18px 20px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        text-decoration: none;
+    }
 
+    .tp-brand-icon {
+        width: 36px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: #fff;
+        flex-shrink: 0;
+    }
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
+    .tp-brand-name {
+        font-size: 15px;
+        font-weight: 500;
+        color: #fff;
+        line-height: 1.2;
+    }
+
+    .tp-brand-sub {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.55);
+    }
+
+    .tp-nav {
+        flex: 1;
+        padding: 12px 0;
+        overflow-y: auto;
+    }
+
+    .tp-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 20px;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        border-left: 3px solid transparent;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+        .tp-nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+        }
+
+        .tp-nav-link.active {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border-left-color: #e9c46a;
+        }
+
+        .tp-nav-link .bi {
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+    .tp-nav-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 8px 20px;
+    }
+
+    /* Dark mode toggle knop */
+    .tp-darkmode-row {
+        padding: 10px 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .tp-darkmode-label {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .tp-darkmode-label .bi {
+            font-size: 15px;
+        }
+
+    /* Toggle switch */
+    .tp-toggle {
+        position: relative;
+        width: 38px;
+        height: 22px;
+        flex-shrink: 0;
+    }
+
+        .tp-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+
+    .tp-toggle-track {
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 11px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .tp-toggle input:checked + .tp-toggle-track {
+        background: #e9c46a;
+    }
+
+    .tp-toggle-thumb {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 16px;
+        height: 16px;
+        background: #fff;
+        border-radius: 50%;
+        transition: transform 0.2s;
+        pointer-events: none;
+    }
+
+    .tp-toggle input:checked ~ .tp-toggle-thumb {
+        transform: translateX(16px);
+    }
+
+    /* User section */
+    .tp-user-section {
+        padding: 12px 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .tp-user-avatar {
+        width: 30px;
+        height: 30px;
+        background: #e9c46a;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 500;
+        color: #7a5200;
+        flex-shrink: 0;
+    }
+
+    .tp-user-name {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.85);
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .tp-logout-btn {
+        background: none;
+        border: none;
+        padding: 4px 8px;
+        color: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        border-radius: 6px;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: color 0.15s, background 0.15s;
+    }
+
+        .tp-logout-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+    .tp-auth-links {
+        display: flex;
+        flex-direction: column;
+        padding: 8px 0;
+    }
+
+    .navbar-toggler {
+        display: none;
+    }
+</style>
+
+<div class="tp-sidebar">
+    <a class="tp-brand" href="">
+        <div class="tp-brand-icon">
+            <span class="bi bi-recycle"></span>
         </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="heatmap">
-                <span class="bi bi-map-fill-nav-menu" aria-hidden="true"></span> Heatmap
-            </NavLink>
+        <div>
+            <div class="tp-brand-name">Trash Pickers</div>
+            <div class="tp-brand-sub">Breda zwerfafval</div>
         </div>
+    </a>
+
+    <nav class="tp-nav">
+        <NavLink class="tp-nav-link" href="" Match="NavLinkMatch.All">
+            <span class="bi bi-house-door-fill" aria-hidden="true"></span>
+            Home
+        </NavLink>
+
+        <NavLink class="tp-nav-link" href="heatmap">
+            <span class="bi bi-map-fill" aria-hidden="true"></span>
+            Heatmap
+        </NavLink>
 
         <AuthorizeView>
             <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="predictions">
-                        <span class="bi bi-lightbulb-fill-nav-menu" aria-hidden="true"></span> Predictions
-                    </NavLink>
-                </div>
+                <div class="tp-nav-divider"></div>
+                <NavLink class="tp-nav-link" href="predictions">
+                    <span class="bi bi-lightbulb-fill" aria-hidden="true"></span>
+                    Predictions
+                </NavLink>
             </Authorized>
         </AuthorizeView>
 
         <AuthorizeView>
-            <Authorized>
-                <div class="nav-item px-3 user-block">
-                    <div>
-                        👤 @context.User.Identity?.Name
-                    </div>
-                </div>
-                <div class="nav-item px-3">
-                    <button class="nav-link" @onclick="Logout">
-                        <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Uitloggen
-                    </button>
-                </div>
-            </Authorized>
             <NotAuthorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="account/register">
-                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Registreren
+                <div class="tp-nav-divider"></div>
+                <div class="tp-auth-links">
+                    <NavLink class="tp-nav-link" href="account/register">
+                        <span class="bi bi-person" aria-hidden="true"></span>
+                        Registreren
                     </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="account/login">
-                        <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Inloggen
+                    <NavLink class="tp-nav-link" href="account/login">
+                        <span class="bi bi-person-badge" aria-hidden="true"></span>
+                        Inloggen
                     </NavLink>
                 </div>
             </NotAuthorized>
         </AuthorizeView>
     </nav>
+
+    <!-- Dark mode toggle -->
+    <div class="tp-darkmode-row">
+        <span class="tp-darkmode-label">
+            <span class="bi @(isDarkMode ? "bi-moon-fill" : "bi-sun-fill")" aria-hidden="true"></span>
+            @(isDarkMode ? "Dark mode" : "Light mode")
+        </span>
+        <label class="tp-toggle">
+            <input type="checkbox" checked="@isDarkMode" @onchange="ToggleDarkMode" />
+            <span class="tp-toggle-track"></span>
+            <span class="tp-toggle-thumb"></span>
+        </label>
+    </div>
+
+    <AuthorizeView>
+        <Authorized>
+            <div class="tp-user-section">
+                <div class="tp-user-avatar">
+                    @(context.User.Identity?.Name?.Length > 0
+                        ? context.User.Identity.Name.Substring(0, Math.Min(2, context.User.Identity.Name.Length)).ToUpper()
+                        : "?")
+                </div>
+                <span class="tp-user-name">@context.User.Identity?.Name</span>
+                <button class="tp-logout-btn" @onclick="Logout" title="Uitloggen">
+                    <span class="bi bi-box-arrow-left" aria-hidden="true"></span>
+                    <span style="font-size:12px; color: rgba(255,255,255,0.6);">Uitloggen</span>
+                </button>
+            </div>
+        </Authorized>
+    </AuthorizeView>
 </div>
 
 @code {
+    private bool isDarkMode = false;
+
     protected override void OnInitialized()
     {
         NavigationManager.LocationChanged += OnLocationChanged;
@@ -80,18 +312,38 @@
         {
             await Task.Delay(100);
             ((CustomAuthenticationStateProvider)AuthStateProvider).NotifyAuthenticationStateChanged();
+
+            // Lees de voorkeur uit localStorage zodat het na refresh bewaard blijft
+            var opgeslagen = await JS.InvokeAsync<string>("localStorage.getItem", "tp-dark-mode");
+            if (opgeslagen == "true")
+            {
+                isDarkMode = true;
+                await JS.InvokeVoidAsync("document.body.classList.add", "dark-mode");
+                StateHasChanged();
+            }
         }
     }
 
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    private async Task ToggleDarkMode()
     {
-        StateHasChanged();
+        isDarkMode = !isDarkMode;
+
+        if (isDarkMode)
+        {
+            await JS.InvokeVoidAsync("document.body.classList.add", "dark-mode");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("document.body.classList.remove", "dark-mode");
+        }
+
+        // Sla voorkeur op in localStorage
+        await JS.InvokeVoidAsync("localStorage.setItem", "tp-dark-mode", isDarkMode.ToString().ToLower());
     }
 
-    private void OnAuthenticationStateChanged(Task<AuthenticationState> task)
-    {
-        InvokeAsync(StateHasChanged);
-    }
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => StateHasChanged();
+
+    private void OnAuthenticationStateChanged(Task<AuthenticationState> task) => InvokeAsync(StateHasChanged);
 
     private async Task Logout()
     {

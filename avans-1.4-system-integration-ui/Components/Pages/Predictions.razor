@@ -7,38 +7,38 @@
 
 <AuthorizeView>
     <Authorized>
-        <h1>Predictions</h1>
 
-        <h1 class="page-title">Predictions</h1>
+        <h1 class="page-title">
+            <span class="bi bi-lightbulb me-2"></span>Predictions
+        </h1>
 
         @* Kaart *@
         <div id="map" class="mb-4"></div>
 
         @* Input formulier *@
         <div class="card shadow-sm mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Voorspelling invoer</h5>
+            <div class="card-header" style="background: #f0faf2; border-bottom: 1px solid #c8e6c9;">
+                <h5 class="card-title mb-0" style="color: #2d6a4f; font-weight: 600;">
+                    <span class="bi bi-sliders me-2"></span>Voorspelling invoer
+                </h5>
             </div>
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-12 col-md-4">
-                        <label class="form-label">Datum</label>
+                        <label class="form-label fw-semibold">Datum</label>
                         <input type="date" class="form-control" @bind="inputDatum" />
                     </div>
                     <div class="col-12 col-md-4">
-                        <label class="form-label">Temperatuur (°C)</label>
+                        <label class="form-label fw-semibold">Temperatuur (°C)</label>
                         <input type="number" class="form-control" @bind="inputTemperatuur" placeholder="bijv. 18" />
                     </div>
                     <div class="col-12 col-md-4">
-                        <label class="form-label">Weertype</label>
+                        <label class="form-label fw-semibold">Weertype</label>
                         <select class="form-select" @bind="inputWeertype">
                             <option value="">-- Selecteer weertype --</option>
-
                             @foreach (var weertype in Weertypes)
                             {
-                                <option value="@weertype.Key">
-                                    @weertype.Value
-                                </option>
+                                <option value="@weertype.Key">@weertype.Value</option>
                             }
                         </select>
                     </div>
@@ -46,65 +46,70 @@
 
                 @if (!string.IsNullOrEmpty(validatieFout))
                 {
-                    <div class="alert alert-danger mt-3">@validatieFout</div>
+                    <div class="alert alert-danger mt-3">
+                        <span class="bi bi-exclamation-triangle me-2"></span>@validatieFout
+                    </div>
                 }
 
                 <div class="mt-3">
-                    <button class="btn btn-primary w-100 py-2 fw-bold" @onclick="VoorspellingOphalen" disabled="@isLoading">
+                    <button class="btn btn-primary px-4" @onclick="VoorspellingOphalen" disabled="@isLoading">
                         @if (isLoading)
                         {
-                            <span>
-                                <span class="spinner-border spinner-border-sm me-2"></span>
-                                Voorspelling laden...
-                            </span>
+                            <span class="spinner-border spinner-border-sm me-2"></span>
                         }
                         else
                         {
-                            <span>Voorspelling ophalen</span>
+                            <span class="bi bi-arrow-right-circle me-2"></span>
                         }
+                        Voorspelling ophalen
                     </button>
                 </div>
             </div>
         </div>
 
         @* Charts *@
-        <div class="row g-4 mt-2">
-            @* Bar Chart / Prioriteitskaart *@
+        <div class="row g-4 mt-1">
+
+            @* Prioriteit + Toelichting *@
             <div class="col-12 col-lg-7">
                 <div class="card shadow-sm h-100">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Voorspelling</h5>
+                    <div class="card-header" style="background: #f0faf2; border-bottom: 1px solid #c8e6c9;">
+                        <h5 class="card-title mb-0" style="color: #2d6a4f; font-weight: 600;">
+                            <span class="bi bi-bar-chart me-2"></span>Voorspelling
+                        </h5>
                     </div>
-
                     <div class="card-body">
-
                         @if (voorspellingResponse != null)
                         {
                             <div class="mb-4">
-                                <h6>Prioriteit</h6>
+                                <h6><span class="bi bi-flag me-1"></span>Prioriteit</h6>
 
-                                <div class="alert alert-primary">
-                                    <strong>Basisprioriteit:</strong>
-                                    @(Prioriteiten.TryGetValue(voorspellingResponse.BasePriority ?? "", out var basisPrioriteit)
-                                        ? basisPrioriteit
-                                        : voorspellingResponse.BasePriority)
+                                <div class="alert alert-primary d-flex align-items-center gap-2">
+                                    <span class="bi bi-circle-half"></span>
+                                    <div>
+                                        <strong>Basisprioriteit:</strong>
+                                        @(Prioriteiten.TryGetValue(voorspellingResponse.BasePriority ?? "", out var basisPrioriteit)
+                                            ? basisPrioriteit
+                                            : voorspellingResponse.BasePriority)
+                                    </div>
                                 </div>
 
-                                <div class="alert alert-success">
-                                    <strong>Eindprioriteit:</strong>
-                                    @(Prioriteiten.TryGetValue(voorspellingResponse.FinalPriority ?? "", out var eindPrioriteit)
-                                        ? eindPrioriteit
-                                        : voorspellingResponse.FinalPriority)
+                                <div class="alert alert-success d-flex align-items-center gap-2">
+                                    <span class="bi bi-check-circle"></span>
+                                    <div>
+                                        <strong>Eindprioriteit:</strong>
+                                        @(Prioriteiten.TryGetValue(voorspellingResponse.FinalPriority ?? "", out var eindPrioriteit)
+                                            ? eindPrioriteit
+                                            : voorspellingResponse.FinalPriority)
+                                    </div>
                                 </div>
                             </div>
 
                             @if (!string.IsNullOrWhiteSpace(voorspellingResponse.Explanation))
                             {
                                 <div>
-                                    <h6>Toelichting</h6>
-
+                                    <h6><span class="bi bi-chat-text me-1"></span>Toelichting</h6>
                                     <div class="alert alert-secondary">
-                                        @* Vertaal basistekst uit API indien deze 'paper/cardboard' bevat *@
                                         @voorspellingResponse.Explanation.Replace("paper/cardboard", "papier/karton", StringComparison.OrdinalIgnoreCase)
                                     </div>
                                 </div>
@@ -112,11 +117,11 @@
                         }
                         else
                         {
-                            <p class="text-muted">
+                            <div class="text-center py-4 text-muted">
+                                <span class="bi bi-hourglass" style="font-size: 2rem; display: block; margin-bottom: 10px;"></span>
                                 Vraag een voorspelling op om resultaten te bekijken.
-                            </p>
+                            </div>
                         }
-
                     </div>
                 </div>
             </div>
@@ -124,17 +129,19 @@
             @* Polar Area Chart *@
             <div class="col-12 col-lg-5">
                 <div class="card shadow-sm">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Verdeling per afvaltype</h5>
+                    <div class="card-header" style="background: #f0faf2; border-bottom: 1px solid #c8e6c9;">
+                        <h5 class="card-title mb-0" style="color: #2d6a4f; font-weight: 600;">
+                            <span class="bi bi-pie-chart me-2"></span>Verdeling per afvaltype
+                        </h5>
                         <small class="text-muted">Kans berekening (%)</small>
                     </div>
                     <div class="card-body">
                         <PolarAreaChart @ref="polarAreaChart" Width="400" />
                     </div>
-                    <div class="card-footer text-muted">
-                        <i class="bi bi-calendar-event me-1"></i>
-                        Evenement in de buurt:
-                        <strong>
+                    <div class="card-footer" style="background: #f9fffe; border-top: 1px solid #e0f0e8;">
+                        <span class="bi bi-calendar-event me-1 text-success"></span>
+                        <span class="text-muted">Evenement in de buurt:</span>
+                        <strong class="ms-1">
                             @(voorspellingResponse?.NearbyEvents?.FirstOrDefault()?.Name ?? "Geen evenement")
                         </strong>
                     </div>
@@ -142,11 +149,15 @@
             </div>
         </div>
 
-
     </Authorized>
     <NotAuthorized>
-        <p>Je moet ingelogd zijn om deze pagina te bekijken.</p>
-        <a href="/account/login">Inloggen</a>
+        <div class="text-center mt-5">
+            <span class="bi bi-lock" style="font-size: 3rem; color: #2d6a4f; display: block; margin-bottom: 16px;"></span>
+            <p class="text-muted mb-3">Je moet ingelogd zijn om deze pagina te bekijken.</p>
+            <a href="/account/login" class="btn btn-primary px-4">
+                <span class="bi bi-person-badge me-2"></span>Inloggen
+            </a>
+        </div>
     </NotAuthorized>
 </AuthorizeView>
 
@@ -159,53 +170,46 @@
     private double markerLng;
     private static Action<double, double>? _onMarkerGeplaatst;
 
-    // Inputs
     private DateTime inputDatum = DateTime.Today;
     private double? inputTemperatuur;
     private string inputWeertype = "";
     private string validatieFout = "";
     private bool isLoading = false;
 
-    // BUGFIX: StringComparer.OrdinalIgnoreCase toegevoegd zodat 'medium' en 'Medium' allebei matchen
     private readonly Dictionary<string, string> Weertypes = new(StringComparer.OrdinalIgnoreCase)
     {
-        { "Sunny", "Zonnig" },
+        { "Sunny",  "Zonnig"  },
         { "Cloudy", "Bewolkt" },
-        { "Rain", "Regen" },
-        { "Fog", "Mist" },
-        { "Storm", "Storm" }
+        { "Rain",   "Regen"   },
+        { "Fog",    "Mist"    },
+        { "Storm",  "Storm"   }
     };
 
-    // BUGFIX: StringComparer.OrdinalIgnoreCase toegevoegd zodat 'medium' en 'Medium' allebei matchen
     private readonly Dictionary<string, string> Prioriteiten = new(StringComparer.OrdinalIgnoreCase)
     {
-        { "Low", "Laag" },
-        { "Medium", "Gemiddeld" },
-        { "High", "Hoog" },
-        { "Critical", "Kritiek" }
+        { "Low",      "Laag"     },
+        { "Medium",   "Gemiddeld"},
+        { "High",     "Hoog"     },
+        { "Critical", "Kritiek"  }
     };
 
     private PredictionResponseDto? voorspellingResponse;
 
     private static readonly string[] WasteTypes =
     [
-        "Plastic",
-        "Papier/Karton",
-        "Glas",
-        "Blik",
-        "Elektronica",
-        "Grofvuil",
-        "Restafval"
+        "Plastic", "Papier/Karton", "Glas", "Blik",
+        "Elektronica", "Grofvuil", "Restafval"
     ];
+
     private static readonly Dictionary<string, string> Afvaltypes = new(StringComparer.OrdinalIgnoreCase)
     {
-        { "Plastic", "Plastic" },
-        { "Paper", "Papier/Karton" },
-        { "Glass", "Glas" },
-        { "Metal", "Blik" },
-        { "Electronics", "Elektronica" },
-        { "Bulky", "Grofvuil" },
-        { "Residual", "Restafval" }
+        { "Plastic",     "Plastic"      },
+        { "Paper",       "Papier/Karton"},
+        { "Glass",       "Glas"         },
+        { "Metal",       "Blik"         },
+        { "Electronics", "Elektronica"  },
+        { "Bulky",       "Grofvuil"     },
+        { "Residual",    "Restafval"    }
     };
 
     private static readonly List<string> BackgroundColors =
@@ -279,7 +283,6 @@
             validatieFout = "Plaats een marker op de kaart om een locatie te selecteren.";
             return false;
         }
-
         validatieFout = "";
         return true;
     }
@@ -308,9 +311,7 @@
                 BuildChartDataVanResponse(voorspellingResponse);
 
             if (chartsInitialized)
-            {
                 await polarAreaChart.UpdateAsync(polarChartData, polarAreaChartOptions);
-            }
         }
         catch (Exception ex)
         {
@@ -326,13 +327,9 @@
     {
         var kansen = WasteTypes.Select(type =>
         {
-            var engelsType = Afvaltypes
-                .FirstOrDefault(x => x.Value == type)
-                .Key;
-
+            var engelsType = Afvaltypes.FirstOrDefault(x => x.Value == type).Key;
             var match = response.TrashTypeProbabilities
-                .FirstOrDefault(p =>
-                    p.Label?.Equals(engelsType, StringComparison.OrdinalIgnoreCase) == true);
+                .FirstOrDefault(p => p.Label?.Equals(engelsType, StringComparison.OrdinalIgnoreCase) == true);
             return match != null ? Math.Round(match.Probability * 100, 1) : 0.0;
         }).ToArray();
 
@@ -343,11 +340,11 @@
             [
                 new PolarAreaChartDataset
                 {
-                    Label = "Kans (%)",
-                    Data = [.. kansen.Select(d => (double?)d)],
+                    Label           = "Kans (%)",
+                    Data            = [.. kansen.Select(d => (double?)d)],
                     BackgroundColor = BackgroundColors,
-                    BorderColor = BorderColors,
-                    BorderWidth = new List<double> { 1.5 },
+                    BorderColor     = BorderColors,
+                    BorderWidth     = new List<double> { 1.5 },
                 }
             ]
         };
@@ -367,11 +364,11 @@
             [
                 new PolarAreaChartDataset
                 {
-                    Label = "Kans (%)",
-                    Data = leeg,
+                    Label           = "Kans (%)",
+                    Data            = leeg,
                     BackgroundColor = BackgroundColors,
-                    BorderColor = BorderColors,
-                    BorderWidth = new List<double> { 1.5 },
+                    BorderColor     = BorderColors,
+                    BorderWidth     = new List<double> { 1.5 },
                 }
             ]
         };

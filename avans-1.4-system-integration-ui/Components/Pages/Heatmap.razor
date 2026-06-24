@@ -4,54 +4,69 @@
 
 <PageTitle>Heatmap</PageTitle>
 
-<h1 class="heatmap-title">Heatmap</h1>
+<h1 class="heatmap-title">
+    <span class="bi bi-map me-2"></span>Heatmap
+</h1>
 
-<!-- FILTER BAR -->
 <div class="filter-bar">
-
-    <button class="pill" @onclick="@(() => SetPeriod("1dag"))">1 dag</button>
-    <button class="pill" @onclick="@(() => SetPeriod("1week"))">1 week</button>
-    <button class="pill" @onclick="@(() => SetPeriod("1maand"))">1 maand</button>
-    <button class="pill" @onclick="@(() => SetPeriod("3maanden"))">3 maanden</button>
-    <button class="pill" @onclick="@(() => SetPeriod("6maanden"))">6 maanden</button>
-    <button class="pill" @onclick="@(() => SetPeriod("1jaar"))">1 jaar</button>
-    <button class="pill" @onclick="@(() => SetPeriod("alles"))">Alle data</button>
-
+    <button class="pill" onclick="window.toonCirkelsIfReady('1dag')">1 dag</button>
+    <button class="pill" onclick="window.toonCirkelsIfReady('1week')">1 week</button>
+    <button class="pill" onclick="window.toonCirkelsIfReady('1maand')">1 maand</button>
+    <button class="pill" onclick="window.toonCirkelsIfReady('3maanden')">3 maanden</button>
+    <button class="pill" onclick="window.toonCirkelsIfReady('6maanden')">6 maanden</button>
+    <button class="pill" onclick="window.toonCirkelsIfReady('1jaar')">1 jaar</button>
+    <button class="pill" onclick="window.toonCirkelsIfReady('alles')">Alles</button>
 </div>
-
-<link rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      crossorigin="" />
 
 <div id="map"></div>
 
-<!-- LEGENDA -->
-<div class="legend-grid">
-    <div><span class="dot red"></span> Plastic</div>
-    <div><span class="dot blue"></span> Papier/Karton</div>
-    <div><span class="dot goldenrod"></span> Glas</div>
-    <div><span class="dot green"></span> Blik</div>
-    <div><span class="dot purple"></span> Elektronica</div>
-    <div><span class="dot orange"></span> Grofvuil</div>
-    <div><span class="dot hotpink"></span> Rest</div>
+<div class="card p-3 mt-3">
+    <h5 class="mb-3" style="color: #2d6a4f; font-weight: 600;">
+        <span class="bi bi-palette me-2"></span>Legenda
+    </h5>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #f9f9f9; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;"><span class="dot red"></span><span>Plastic</span></div>
+            <span style="font-size: 12px; background: #fee2e2; color: #991b1b; padding: 2px 10px; border-radius: 999px; font-weight: 500;">Score: 7</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #f9f9f9; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;"><span class="dot blue"></span><span>Papier/karton</span></div>
+            <span style="font-size: 12px; background: #dbeafe; color: #1e40af; padding: 2px 10px; border-radius: 999px; font-weight: 500;">Score: 4</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #f9f9f9; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;"><span class="dot goldenrod"></span><span>Glas</span></div>
+            <span style="font-size: 12px; background: #fef9c3; color: #854d0e; padding: 2px 10px; border-radius: 999px; font-weight: 500;">Score: 9</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #f9f9f9; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;"><span class="dot green"></span><span>Blik</span></div>
+            <span style="font-size: 12px; background: #dcfce7; color: #166534; padding: 2px 10px; border-radius: 999px; font-weight: 500;">Score: 6</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #f9f9f9; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;"><span class="dot purple"></span><span>Elektrische apparaten</span></div>
+            <span style="font-size: 12px; background: #ede9fe; color: #5b21b6; padding: 2px 10px; border-radius: 999px; font-weight: 500;">Score: 10</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #f9f9f9; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;"><span class="dot orange"></span><span>Grofvuil</span></div>
+            <span style="font-size: 12px; background: #ffedd5; color: #9a3412; padding: 2px 10px; border-radius: 999px; font-weight: 500;">Score: 8</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #f9f9f9; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;"><span class="dot hotpink"></span><span>Restafval</span></div>
+            <span style="font-size: 12px; background: #fce7f3; color: #9d174d; padding: 2px 10px; border-radius: 999px; font-weight: 500;">Score: 5</span>
+        </div>
+    </div>
+
+    <p class="mt-3 mb-0" style="font-size: 13px; color: #6b7280;">
+        <span class="bi bi-info-circle me-1"></span>
+        De prioriteitsscore wordt berekend door het aantal stukken afval te vermenigvuldigen met de score van elk type.
+    </p>
 </div>
-
 @code {
-
-    private string selectedPeriod = "alles";
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             await JS.InvokeVoidAsync("initMap");
         }
-    }
-
-    private async Task SetPeriod(string period)
-    {
-        selectedPeriod = period;
-
-        await JS.InvokeVoidAsync("toonCirkelsIfReady", period);
     }
 }
