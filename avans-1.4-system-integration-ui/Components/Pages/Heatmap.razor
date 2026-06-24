@@ -1,6 +1,7 @@
 ﻿@page "/Heatmap"
 @rendermode InteractiveServer
 @inject IJSRuntime JS
+@inject TrashDataService TrashDataService
 
 <PageTitle>Heatmap</PageTitle>
 
@@ -69,5 +70,12 @@
         {
             await JS.InvokeVoidAsync("initMap");
         }
+
+        // TODO link with map
+        var trashData = await TrashDataService.GetTrashDataAsync(new TrashDataTimeFrameDto
+        {
+            StartDate = DateTime.UtcNow.AddDays(-10),
+            EndDate = DateTime.UtcNow
+        });
     }
 }

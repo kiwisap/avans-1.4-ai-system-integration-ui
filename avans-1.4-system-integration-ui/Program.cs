@@ -20,6 +20,13 @@ builder.Services.AddHttpClient<AuthService>(client =>
 })
 .AddHttpMessageHandler<AuthorizationMessageHandler>();
 
+// Configure HttpClient for TrashDataService with bearer token
+builder.Services.AddHttpClient<TrashDataService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+})
+.AddHttpMessageHandler<AuthorizationMessageHandler>();
+
 // Configure HttpClient for PredictionsService with api key
 var predictionsApiBaseUrl = builder.Configuration.GetValue<string>("ApiSettings:PredictionsBaseUrl") ?? "https://localhost:8000";
 var apiKey = builder.Configuration.GetValue<string>("ai-api-key");
@@ -31,9 +38,6 @@ builder.Services.AddHttpClient<PredictionsService>(client =>
 
 builder.Services.AddScoped<TokenStorageService>();
 builder.Services.AddScoped<AuthorizationMessageHandler>();
-builder.Services.AddScoped(sp => new HttpClient {
-    BaseAddress = new Uri("https://localhost:7000/")
-});
 
 // Register custom authentication services
 builder.Services.AddScoped<CustomAuthenticationStateProvider>();
