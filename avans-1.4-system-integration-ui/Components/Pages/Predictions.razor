@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject IJSRuntime JS
 @inject PredictionsService PredictionsService
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Predictions</PageTitle>
 
@@ -247,6 +248,12 @@
     {
         if (firstRender)
         {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (!authState.User.Identity?.IsAuthenticated ?? true)
+            {
+                return;
+            }
+
             await JS.InvokeVoidAsync("initMapPredictions");
             await polarAreaChart.InitializeAsync(polarChartData, polarAreaChartOptions);
             chartsInitialized = true;
