@@ -80,31 +80,21 @@
     private bool _isLoading = false;
 
     private static readonly Dictionary<TrashType, string> TrashTypeLabels = new()
-{
-    { TrashType.Plastic,    "Plastic" },
-    { TrashType.Paper,      "Papier/karton" },
-    { TrashType.Glass,      "Glas" },
-    { TrashType.Can,        "Blik" },
-    { TrashType.Bulky_Waste,"Grofvuil" },
-    { TrashType.Rest,       "Restafval" },
-};
+    {
+        { TrashType.Plastic,    "Plastic" },
+        { TrashType.Paper,      "Papier/karton" },
+        { TrashType.Glass,      "Glas" },
+        { TrashType.Can,        "Blik" },
+        { TrashType.Bulky_Waste,"Grofvuil" },
+        { TrashType.Rest,       "Restafval" },
+    };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            await JS.InvokeVoidAsync("eval", @"
-                (function waitForInitMap() {
-                    if (typeof window.initMap === 'function') {
-                        window.initMap();
-                    } else {
-                        setTimeout(waitForInitMap, 100);
-                    }
-                })();
-            ");
+        if (!firstRender) return;
 
-            await LoadData(10);
-        }
+        await JS.InvokeVoidAsync("initMap");
+        await LoadData(10);
     }
 
     private async Task LoadData(int? days)
