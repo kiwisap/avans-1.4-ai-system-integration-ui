@@ -303,10 +303,42 @@ html.dark-mode ::-webkit-scrollbar-thumb {
         color: #74c69d !important;
     }
 
-    html.dark-mode body,
-    html.dark-mode main,
-    html.dark-mode .page,
-    html.dark-mode article {
-        background-color: #121a16 !important;
-        color: #e2e8e4 !important;
+html.dark-mode body,
+html.dark-mode main,
+html.dark-mode .page,
+html.dark-mode article {
+    background-color: #121a16 !important;
+    color: #e2e8e4 !important;
+
+    .map-loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.35);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
     }
+
+    .map-loading-inner {
+        background: white;
+        padding: 16px 24px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 500;
+        color: #2d6a4f;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    html.dark-mode .map-loading-inner {
+        background: #1e2d25;
+        color: #74c69d;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+}

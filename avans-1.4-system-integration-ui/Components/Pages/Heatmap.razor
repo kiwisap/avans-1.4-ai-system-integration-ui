@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject IJSRuntime JS
 @inject TrashDataService TrashDataService
+@using avans_1._4_system_integration_ui.Models.Enums
 
 <PageTitle>Heatmap</PageTitle>
 
@@ -10,16 +11,27 @@
 </h1>
 
 <div class="filter-bar">
-    <button class="pill" onclick="window.toonCirkelsIfReady('1dag')">1 dag</button>
-    <button class="pill" onclick="window.toonCirkelsIfReady('1week')">1 week</button>
-    <button class="pill" onclick="window.toonCirkelsIfReady('1maand')">1 maand</button>
-    <button class="pill" onclick="window.toonCirkelsIfReady('3maanden')">3 maanden</button>
-    <button class="pill" onclick="window.toonCirkelsIfReady('6maanden')">6 maanden</button>
-    <button class="pill" onclick="window.toonCirkelsIfReady('1jaar')">1 jaar</button>
-    <button class="pill" onclick="window.toonCirkelsIfReady('alles')">Alles</button>
+    <button class="pill" @onclick='() => LoadData(1)'>1 dag</button>
+    <button class="pill" @onclick='() => LoadData(7)'>1 week</button>
+    <button class="pill" @onclick='() => LoadData(30)'>1 maand</button>
+    <button class="pill" @onclick='() => LoadData(90)'>3 maanden</button>
+    <button class="pill" @onclick='() => LoadData(180)'>6 maanden</button>
+    <button class="pill" @onclick='() => LoadData(365)'>1 jaar</button>
+    <button class="pill" @onclick='() => LoadData(null)'>Alles</button>
 </div>
 
-<div id="map"></div>
+<div style="position: relative;">
+    @if (_isLoading)
+    {
+        <div class="map-loading-overlay">
+            <div class="map-loading-inner">
+                <div class="spinner-border text-success" role="status"></div>
+                <span>Gegevens laden...</span>
+            </div>
+        </div>
+    }
+    <div id="map"></div>
+</div>
 
 <div class="card p-3 mt-3">
     <h5 class="mb-3" style="color: #2d6a4f; font-weight: 600;">
@@ -63,32 +75,71 @@
         Dus hoe hoger de prioriteits score hoe belangrijker het is om het op te ruimen.
     </p>
 </div>
-    @code {
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+
+@code {
+    private bool _isLoading = false;
+
+    private static readonly Dictionary<TrashType, string> TrashTypeLabels = new()
+{
+    { TrashType.Plastic,    "Plastic" },
+    { TrashType.Paper,      "Papier/karton" },
+    { TrashType.Glass,      "Glas" },
+    { TrashType.Can,        "Blik" },
+    { TrashType.Bulky_Waste,"Grofvuil" },
+    { TrashType.Rest,       "Restafval" },
+};
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
         {
-            if (firstRender)
-            {
-                await JS.InvokeVoidAsync("eval", @"
-                    (function waitForInitMap() {
-                        if (typeof window.initMap === 'function') {
-                            window.initMap();
-                        } else {
-                            setTimeout(waitForInitMap, 100);
-                        }
-                    })();
-                ");
+            await JS.InvokeVoidAsync("eval", @"
+                (function waitForInitMap() {
+                    if (typeof window.initMap === 'function') {
+                        window.initMap();
+                    } else {
+                        setTimeout(waitForInitMap, 100);
+                    }
+                })();
+            ");
 
-                // Wacht tot JS interop beschikbaar is
-                await Task.Delay(500);
-
-                var trashData = await TrashDataService.GetTrashDataAsync(new TrashDataTimeFrameDto
-                {
-                    StartDate = DateTime.UtcNow.AddDays(-10),
-                    EndDate = DateTime.UtcNow
-                });
-
-                await JS.InvokeVoidAsync("loadTrashData", trashData);
-            }
+            await LoadData(10);
         }
     }
 
+    private async Task LoadData(int? days)
+    {
+        _isLoading = true;
+        StateHasChanged();
+
+        var startDate = days.HasValue
+            ? DateTime.UtcNow.AddDays(-days.Value)
+            : DateTime.MinValue;
+
+        var trashData = await TrashDataService.GetTrashDataAsync(new TrashDataTimeFrameDto
+        {
+            StartDate = startDate,
+            EndDate = DateTime.UtcNow
+        });
+
+        var mapped = trashData.Select(item => new
+        {
+            item.Id,
+            item.SensorId,
+            TrashType = TrashTypeLabels.TryGetValue(item.TrashType, out var label) ? label : item.TrashType.ToString(),
+            item.Latitude,
+            item.Longitude,
+            item.DateTime,
+            item.Temperature,
+            item.Rain,
+            item.Confidence,
+            item.ImageId,
+            item.FetchedAtUtc
+        }).ToList();
+
+        await JS.InvokeVoidAsync("loadTrashData", mapped);
+
+        _isLoading = false;
+        StateHasChanged();
+    }
+}

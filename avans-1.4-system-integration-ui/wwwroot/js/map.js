@@ -17,12 +17,12 @@
     }).addTo(map);
 
     var kleurPerType = {
-        'Plastic': 'red', 'Paper/Cardboard': 'blue', 'Glass': 'goldenrod',
-        'Cans': 'green', 'Electronics': 'purple', 'Bulky': 'orange', 'Residual': 'hotpink'
+        'Plastic': 'red', 'Papier/karton': 'blue', 'Glas': 'goldenrod',
+        'Blik': 'green', 'Grofvuil': 'orange', 'Restafval': 'hotpink'
     };
     var scorePerType = {
-        'Plastic': 7, 'Paper/Cardboard': 4, 'Glass': 9,
-        'Cans': 6, 'Electronics': 10, 'Bulky': 8, 'Residual': 5
+        'Plastic': 7, 'Papier/karton': 4, 'Glas': 9,
+        'Blik': 6, 'Grofvuil': 8, 'Restafval': 5
     };
 
     window._alleData = [];
@@ -124,8 +124,10 @@
                     // '<b>' + item.WasteType + '</b><br>' +
                     // 'Datum: ' + item.DateTime + '<br>' +
                     '<b>' + item.trashType + '</b><br>' +
+                    'Aantal op locatie: ' + wasteAmount + '<br>' +
                     'Datum: ' + item.dateTime + '<br>' +
                     'Prioriteitsscore: ' + prioriteitScore
+                );
                 );
 
                 cirkels.push(cirkel);
