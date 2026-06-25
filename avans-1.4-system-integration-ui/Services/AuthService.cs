@@ -4,7 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace avans_1._4_system_integration_ui.Services;
 
-public class AuthService(HttpClient httpClient, TokenStorageService tokenStorage)
+public class AuthService(
+    HttpClient httpClient,
+    TokenStorageService tokenStorage,
+    TokenRefreshService refreshService)
+    : AbstractAuthenticatedApiService(httpClient, tokenStorage, refreshService)
 {
     public async Task<AuthResponse> LoginAsync(LoginRequestDto request)
     {
@@ -20,7 +24,7 @@ public class AuthService(HttpClient httpClient, TokenStorageService tokenStorage
             if (tokens is null || string.IsNullOrEmpty(tokens.AccessToken))
                 return new AuthResponse
                 {
-                    Success = false, 
+                    Success = false,
                     Message = "Invalid response from server - no token received."
                 };
 
@@ -57,6 +61,21 @@ public class AuthService(HttpClient httpClient, TokenStorageService tokenStorage
                 Success = false,
                 Message = $"Error: {ex.Message}"
             };
+        }
+    }
+
+    public async Task<UserDto?> GetCurrentUserAsync()
+    {
+        if (!await IsAuthenticatedAsync())
+            return null;
+
+        try
+        {
+            return await GetAsync<UserDto>("api/auth/me");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return null;
         }
     }
 
