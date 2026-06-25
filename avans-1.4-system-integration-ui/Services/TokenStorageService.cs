@@ -11,15 +11,8 @@ public class TokenStorageService(IJSRuntime jsRuntime)
 
     public async Task<AuthTokens?> GetTokensAsync()
     {
-        try
-        {
-            var json = await jsRuntime.InvokeAsync<string?>("localStorage.getItem", StorageKey);
-            return string.IsNullOrEmpty(json) ? null : JsonSerializer.Deserialize<AuthTokens>(json);
-        }
-        catch
-        {
-            return null; // prerender / interop not available yet
-        }
+        var json = await jsRuntime.InvokeAsync<string?>("localStorage.getItem", StorageKey);
+        return string.IsNullOrEmpty(json) ? null : JsonSerializer.Deserialize<AuthTokens>(json);
     }
 
     public async Task SetTokensAsync(AccessTokenResponseDto tokens)
