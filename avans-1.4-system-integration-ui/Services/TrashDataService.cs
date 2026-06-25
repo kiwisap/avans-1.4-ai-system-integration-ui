@@ -1,9 +1,11 @@
-﻿using avans_1._4_system_integration_ui.Models.Dto;
+﻿using avans_1._4_system_integration_ui.Authentication;
+using avans_1._4_system_integration_ui.Models.Dto;
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace avans_1._4_system_integration_ui.Services;
 
-public class TrashDataService(HttpClient httpClient)
+public class TrashDataService(HttpClient httpClient, CustomAuthenticationStateProvider authStateProvider)
 {
     private static readonly JsonSerializerOptions jsonOptions = new()
     {
@@ -13,24 +15,24 @@ public class TrashDataService(HttpClient httpClient)
 
     public async Task<List<TrashDetectionDto>> GetTrashDataAsync(TrashDataTimeFrameDto timeframe)
     {
-        try
+        var authState = await authStateProvider.GetAuthenticationStateAsync();
+        var authToken = authState.User.Claims.FirstOrDefault(c => c.Type == "token")?.Value;
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "api/trashdata")
         {
-            var response = await httpClient.PostAsJsonAsync("/api/trashdata", timeframe);
+            Content = JsonContent.Create(timeframe, options: jsonOptions)
+        };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
-            if (response.IsSuccessStatusCode)
-            {
-                var responseBody = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<List<TrashDetectionDto>>(responseBody, jsonOptions);
+        var response = await httpClient.SendAsync(request);
 
-                return result ?? [];
-            }
-
-            var error = await response.Content.ReadAsStringAsync();
-            throw new Exception($"HTTP {(int)response.StatusCode}: {error}");
-        }
-        catch (Exception ex)
+        if (response.IsSuccessStatusCode)
         {
-          throw new Exception("HOI!", ex);
+            var body = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<List<TrashDetectionDto>>(body, jsonOptions) ?? [];
         }
+
+        var error = await response.Content.ReadAsStringAsync();
+        throw new Exception($"HTTP {(int)response.StatusCode}: {error}");
     }
 }

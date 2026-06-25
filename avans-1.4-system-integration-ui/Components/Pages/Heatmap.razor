@@ -2,7 +2,6 @@
 @rendermode InteractiveServer
 @inject IJSRuntime JS
 @inject TrashDataService TrashDataService
-@inject CustomAuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Heatmap</PageTitle>
 
@@ -66,36 +65,30 @@
 </div>
     @code {
         protected override async Task OnAfterRenderAsync(bool firstRender)
-{
-    if (firstRender)
-    {
-        await JS.InvokeVoidAsync("eval", @"
-            (function waitForInitMap() {
-                if (typeof window.initMap === 'function') {
-                    window.initMap();
-                } else {
-                    setTimeout(waitForInitMap, 100);
-                }
-            })();
-        ");
-
-        // Wacht tot JS interop beschikbaar is
-        await Task.Delay(500);
-
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated == true)
         {
-            var trashData = await TrashDataService.GetTrashDataAsync(new TrashDataTimeFrameDto
+            if (firstRender)
             {
-                StartDate = DateTime.UtcNow.AddDays(-10),
-                EndDate = DateTime.UtcNow
-            });
+                await JS.InvokeVoidAsync("eval", @"
+                    (function waitForInitMap() {
+                        if (typeof window.initMap === 'function') {
+                            window.initMap();
+                        } else {
+                            setTimeout(waitForInitMap, 100);
+                        }
+                    })();
+                ");
 
-            await JS.InvokeVoidAsync("loadTrashData", trashData);
+                // Wacht tot JS interop beschikbaar is
+                await Task.Delay(500);
+
+                var trashData = await TrashDataService.GetTrashDataAsync(new TrashDataTimeFrameDto
+                {
+                    StartDate = DateTime.UtcNow.AddDays(-10),
+                    EndDate = DateTime.UtcNow
+                });
+
+                await JS.InvokeVoidAsync("loadTrashData", trashData);
+            }
         }
-    }
-}
     }
 

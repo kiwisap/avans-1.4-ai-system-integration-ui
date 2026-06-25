@@ -24,8 +24,7 @@ builder.Services.AddHttpClient<AuthService>(client =>
 builder.Services.AddHttpClient<TrashDataService>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
-})
-.AddHttpMessageHandler<AuthorizationMessageHandler>();
+});
 
 // Configure HttpClient for PredictionsService with api key
 var predictionsApiBaseUrl = builder.Configuration.GetValue<string>("ApiSettings:PredictionsBaseUrl") ?? "https://localhost:8000";
