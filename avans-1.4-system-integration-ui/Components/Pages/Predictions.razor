@@ -83,17 +83,6 @@
                         {
                             <div class="mb-4">
                                 <h6><span class="bi bi-flag me-1"></span>Prioriteit</h6>
-
-                                <div class="alert alert-primary d-flex align-items-center gap-2">
-                                    <span class="bi bi-circle-half"></span>
-                                    <div>
-                                        <strong>Basisprioriteit:</strong>
-                                        @(Prioriteiten.TryGetValue(voorspellingResponse.BasePriority ?? "", out var basisPrioriteit)
-                                            ? basisPrioriteit
-                                            : voorspellingResponse.BasePriority)
-                                    </div>
-                                </div>
-
                                 <div class="alert alert-success d-flex align-items-center gap-2">
                                     <span class="bi bi-check-circle"></span>
                                     <div>
