@@ -1,5 +1,14 @@
+:root.dark-mode {
+}
+html {
+    overflow-y: scroll;
+}
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+body {
+    overflow-x: hidden;
 }
 
 a, .btn-link {
@@ -18,6 +27,11 @@ a, .btn-link {
 
 .content {
     padding-top: 1.1rem;
+}
+.card {
+    border-radius: 12px;
+    border: 1px solid transparent !important;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
 }
 
 h1:focus {
@@ -57,4 +71,274 @@ h1:focus {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
+}
+
+
+html.dark-mode {
+    background-color: #121a16 !important;
+    color: #e2e8e4 !important;
+}
+
+    html.dark-mode .page {
+        background: #121a16 !important;
+    }
+
+    html.dark-mode .top-row {
+        background-color: #1a2820 !important;
+        border-bottom-color: #2d6a4f !important;
+        color: #e2e8e4;
+    }
+
+        html.dark-mode .top-row a {
+            color: #a8c5b5 !important;
+        }
+
+    html.dark-mode .card {
+        background-color: #1e2d25 !important;
+        border-color: #2d4a3a !important;
+        color: #e2e8e4 !important;
+    }
+
+    html.dark-mode .card-header {
+        background-color: #1a2820 !important;
+        border-bottom-color: #2d4a3a !important;
+    }
+
+    html.dark-mode .card-footer {
+        background-color: #1a2820 !important;
+        border-top-color: #2d4a3a !important;
+    }
+
+    html.dark-mode .info-card {
+        background-color: #1e2d25 !important;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.4) !important;
+    }
+
+        html.dark-mode .info-card h2 {
+            color: #74c69d !important;
+        }
+
+        html.dark-mode .info-card p {
+            color: #b7cfc4 !important;
+        }
+
+    html.dark-mode .image-card {
+        background-color: #1e2d25 !important;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08) !important;
+    }
+
+    html.dark-mode .home-title,
+    html.dark-mode .heatmap-title,
+    html.dark-mode .page-title {
+        color: #74c69d !important;
+    }
+
+    html.dark-mode h6 {
+        color: #74c69d !important;
+    }
+
+    html.dark-mode .pill {
+        background-color: #1e2d25 !important;
+        border-color: #3a5a48 !important;
+        color: #b7cfc4 !important;
+    }
+
+        html.dark-mode .pill:hover {
+            background-color: #2d6a4f !important;
+            color: #fff !important;
+        }
+
+    html.dark-mode .form-control,
+    html.dark-mode .form-select {
+        background-color: #1a2820 !important;
+        border-color: #3a5a48 !important;
+        color: #e2e8e4 !important;
+    }
+
+        html.dark-mode .form-control::placeholder {
+            color: #6a8a78 !important;
+        }
+
+    html.dark-mode .form-label {
+        color: #b7cfc4 !important;
+    }
+
+    html.dark-mode .alert-primary {
+        background-color: #0d2137 !important;
+        color: #90c4f8 !important;
+        border-color: #1a4a7a !important;
+    }
+
+    html.dark-mode .alert-success {
+        background-color: #0d2518 !important;
+        color: #74c69d !important;
+        border-color: #1a5c35 !important;
+    }
+
+    html.dark-mode .alert-secondary {
+        background-color: #1e2d25 !important;
+        color: #b7cfc4 !important;
+        border-color: #2d4a3a !important;
+    }
+
+    html.dark-mode .alert-danger {
+        background-color: #2d1515 !important;
+        color: #f8a4a4 !important;
+        border-color: #6a2020 !important;
+    }
+
+    html.dark-mode .text-muted {
+        color: #6a8a78 !important;
+    }
+
+    html.dark-mode #map {
+        box-shadow: 0 3px 10px rgba(0,0,0,0.5) !important;
+    }
+
+    html.dark-mode .legend-grid {
+        color: #b7cfc4;
+    }
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #2d6a4f;
+    border-radius: 3px;
+}
+
+html.dark-mode ::-webkit-scrollbar-track {
+    background: #121a16;
+}
+
+html.dark-mode ::-webkit-scrollbar-thumb {
+    background: #40916c;
+    border-radius: 3px;
+}
+    html.dark-mode .pill {
+        background: #1e2d25 !important;
+        border-color: #3a5a48 !important;
+        color: #b7cfc4 !important;
+    }
+
+        html.dark-mode .pill:hover {
+            background: #2d6a4f !important;
+            color: #fff !important;
+        }
+
+    html.dark-mode .card {
+        background-color: #1e2d25 !important;
+        border-color: #2d4a3a !important;
+        color: #e2e8e4 !important;
+    }
+
+    html.dark-mode .card-header {
+        background-color: #1a2820 !important;
+        border-bottom-color: #2d4a3a !important;
+    }
+
+    html.dark-mode .card-footer {
+        background-color: #1a2820 !important;
+        border-top-color: #2d4a3a !important;
+    }
+
+    html.dark-mode .heatmap-title,
+    html.dark-mode .page-title {
+        color: #74c69d !important;
+    }
+
+    html.dark-mode h6 {
+        color: #74c69d !important;
+    }
+
+    html.dark-mode .form-control,
+    html.dark-mode .form-select {
+        background-color: #1a2820 !important;
+        border-color: #3a5a48 !important;
+        color: #e2e8e4 !important;
+    }
+
+    html.dark-mode .alert-secondary {
+        background-color: #1e2d25 !important;
+        color: #b7cfc4 !important;
+    }
+
+    html.dark-mode .alert-primary {
+        background-color: #0d2137 !important;
+        color: #90c4f8 !important;
+    }
+
+    html.dark-mode .alert-success {
+        background-color: #0d2518 !important;
+        color: #74c69d !important;
+    }
+
+    html.dark-mode .text-muted {
+        color: #6a8a78 !important;
+    }
+
+    html.dark-mode .info-card {
+        background-color: #1e2d25 !important;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08) !important;
+    }
+
+        html.dark-mode .info-card h2 {
+            color: #74c69d !important;
+        }
+
+        html.dark-mode .info-card p {
+            color: #b7cfc4 !important;
+        }
+
+    html.dark-mode .image-card {
+        background-color: #1e2d25 !important;
+    }
+
+    html.dark-mode .home-title {
+        color: #74c69d !important;
+    }
+
+html.dark-mode body,
+html.dark-mode main,
+html.dark-mode .page,
+html.dark-mode article {
+    background-color: #121a16 !important;
+    color: #e2e8e4 !important;
+
+    .map-loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.35);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+    }
+
+    .map-loading-inner {
+        background: white;
+        padding: 16px 24px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 500;
+        color: #2d6a4f;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    html.dark-mode .map-loading-inner {
+        background: #1e2d25;
+        color: #74c69d;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
 }

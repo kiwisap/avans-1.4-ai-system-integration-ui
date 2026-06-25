@@ -16,7 +16,8 @@ public class CustomAuthenticationStateProvider(TokenStorageService tokenStorage,
         {
             try
             {
-                var token = await tokenStorage.GetTokenAsync();
+                var tokens = await tokenStorage.GetTokensAsync();
+                var token = tokens?.AccessToken;
 
                 if (string.IsNullOrWhiteSpace(token))
                 {
